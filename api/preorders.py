@@ -1,4 +1,5 @@
-"""Vercel function for /api/preorders. All the code is in server/app.py; this file only says which route it answers."""
+"""Vercel function for /api/preorders, the order endpoint (the route keeps its first name).
+All the code is in server/app.py; this file only says which route it answers."""
 import os
 import sys
 from http.server import BaseHTTPRequestHandler

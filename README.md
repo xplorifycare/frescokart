@@ -1,8 +1,8 @@
 # FrescoKart
 
-Landing page and pre-order server for FrescoKart, a Kochi pilot that sells ready-to-cook Kerala fish kits: the fish cut for the dish, cut vegetables and measured masalas in one chilled pack.
+Landing page and order server for FrescoKart, a Kochi service that sells ready-to-cook Kerala fish kits: the fish cut for the dish, cut vegetables and measured masalas in one chilled pack.
 
-Visitors pick a kit, build a basket and place a pre-order for next-day delivery. Orders, "tell me when you start" sign-ups and area taps are saved on a server, and you read them on a password-protected admin page that also shows demand by area and by ad campaign.
+Visitors pick a kit, build a basket and place an order, delivered in about 45 minutes. Orders, "tell me when you reach my area" sign-ups and area taps are saved on a server, and you read them on a password-protected admin page that also shows demand by area and by ad campaign.
 
 ## What is in this repository
 
@@ -11,7 +11,7 @@ Visitors pick a kit, build a basket and place a pre-order for next-day delivery.
 | `web/` | The site visitors see: `index.html` (generated), `privacy.html` and `img/`. |
 | `frescokart-landing.html` | The source of the home page. Edit this one. |
 | `build_site.py` | Turns `frescokart-landing.html` into `web/index.html`. |
-| `server/app.py` | The server: pre-orders, sign-ups, area votes, admin page and CSV downloads. SQLite when you run it yourself, Postgres on Vercel. |
+| `server/app.py` | The server: orders, sign-ups, area votes, admin page and CSV downloads. SQLite when you run it yourself, Postgres on Vercel. |
 | `api/` | The Vercel functions. Each file is a few lines that point Vercel at `server/app.py`. |
 | `vercel.json`, `requirements.txt`, `.python-version` | Vercel settings. |
 
@@ -32,11 +32,11 @@ On Vercel the page and the API live in one project. The data is kept in a Postgr
 
 1. **Import the repository.** In Vercel choose Add New, then Project, pick this repository and click Import. If it is not listed, use "Adjust GitHub App Permissions" and give Vercel access to it.
 2. **Leave the build settings alone.** Framework Preset "Other" is right. `vercel.json` already sets the output folder (`web`) and turns the build step off.
-3. **Add the admin password.** Under Environment Variables add `FK_ADMIN_PASSWORD` with a long password. Without it the admin page stays closed. Optional: `FK_NOTIFY_WEBHOOK`, a URL that receives `{"text": "..."}` for every new pre-order or sign-up.
+3. **Add the admin password.** Under Environment Variables add `FK_ADMIN_PASSWORD` with a long password. Without it the admin page stays closed. Optional: `FK_NOTIFY_WEBHOOK`, a URL that receives `{"text": "..."}` for every new order or sign-up.
 4. **Deploy.**
 5. **Add the database.** Open the project, go to Storage, create a Neon (Postgres) database, then Connect Project and tick Development, Preview and Production. Vercel adds `DATABASE_URL` for you.
 6. **Redeploy** so the new settings are used: Deployments, the latest one, the three-dot menu, Redeploy.
-7. **Check it.** Open `https://your-project.vercel.app/api/health?deep=1`. You should see `{"ok": true, "db": "postgres"}`. Place a test pre-order on the site, then open `/admin` (user `admin`) and look for it.
+7. **Check it.** Open `https://your-project.vercel.app/api/health?deep=1`. You should see `{"ok": true, "db": "postgres"}`. Place a test order on the site, then open `/admin` (user `admin`) and look for it.
 8. **Add your domain** under Settings, Domains, and point your ads at it.
 
 Until a database is connected, `/api/health` says so and the page quietly falls back to opening WhatsApp with the order written out, so nothing breaks.
@@ -52,13 +52,13 @@ Edit `frescokart-landing.html`, run `python build_site.py`, and commit both file
 | Variable | What it does |
 | --- | --- |
 | `FK_ADMIN_PASSWORD` | Admin password. Required on Vercel. |
-| `FK_NOTIFY_WEBHOOK` | URL that receives `{"text": "..."}` for every new pre-order and sign-up. |
+| `FK_NOTIFY_WEBHOOK` | URL that receives `{"text": "..."}` for every new order and sign-up. |
 | `DATABASE_URL` | Postgres address. Vercel adds it when you connect the database. Locally use `FK_DATABASE_URL`. |
 | `FK_SECRET` | Secret behind the daily visitor code. If empty, one is made and kept in the database. |
-| `FK_LIMIT_PREORDERS`, `FK_LIMIT_LEADS`, `FK_LIMIT_VOTES` | Requests allowed per visitor per hour. Defaults 8, 10 and 60. |
+| `FK_LIMIT_ORDERS`, `FK_LIMIT_LEADS`, `FK_LIMIT_VOTES` | Requests allowed per visitor per hour. Defaults 8, 10 and 60. |
 
 ## Before you run ads
 
 - Have a lawyer review `web/privacy.html`. It is a plain-language template. Update its cookies section if you add Meta Pixel, Google Ads or analytics.
-- Prices and offers are worked out in the visitor's browser, and the server only checks that a basket is sensible. Confirm price, availability and delivery slot on WhatsApp before delivering.
+- Prices and offers are worked out in the visitor's browser, and the server only checks that a basket is sensible. Confirm price and availability on WhatsApp for each order before it goes out.
 - Back up the database now and then. Neon has its own backup and export tools, and the admin page can download every table as CSV.

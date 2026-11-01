@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Malayalam:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: kit-first. A hero with a "what's in the pack" card and an area picker, a Malayalam dish ticker, a catalogue with Cook kits / Fresh fish tabs, collections, sticky filters and kit cards (servings toggle, offers), an "inside the kit" explorer with a cook-along phone, a dark "follow a kit" journey, a delivery band, an area picker that feeds WhatsApp pre-orders, app-feature tiles, a membership band, product cards and a dark footer. A slide-over basket builds the WhatsApp pre-order message. Single light page by choice, with dark feature bands. */
+/* Layout: kit-first. A hero with a "what's in the pack" card and an area picker, a Malayalam dish ticker, a catalogue with Cook kits / Fresh fish tabs, collections, sticky filters and kit cards (servings toggle, offers), an "inside the kit" explorer with a cook-along phone, a dark "follow a kit" journey, a delivery band, an area picker that feeds WhatsApp orders, app-feature tiles, a membership band, product cards and a dark footer. A slide-over basket builds the WhatsApp order message. Single light page by choice, with dark feature bands. */
 :root{
   --bg:#FAFCF9; --ink:#0E1F17; --muted:#5E6B63; --line:rgba(14,31,23,.1);
   --green:#006B48; --fresh:#36B94A; --lime:#A8E63D; --action:#C8380A; --sea:#0A5C8C;
@@ -668,8 +668,8 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
   <a class="brand" href="#top" aria-label="FrescoKart home"><img src="img/symbol-colour.svg" width="34" height="33" alt=""><span><span class="f">Fresco</span><span class="k">Kart</span></span></a>
   <div class="links"><a href="#fresh">Cook kits</a><a href="#inside">Inside a kit</a><a href="#trace">How it gets to you</a><a href="#areas">Areas</a></div>
   <div class="rt">
-    <a class="prebtn" href="#fresh">Pre-order</a>
-    <button class="basket" id="basket" type="button" aria-label="Open your pre-order basket">Basket <b id="count">0</b><span id="tot"></span></button>
+    <a class="prebtn" href="#fresh">Order now</a>
+    <button class="basket" id="basket" type="button" aria-label="Open your basket">Basket <b id="count">0</b><span id="tot"></span></button>
   </div>
 </div></nav>
 
@@ -679,7 +679,7 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
   <div class="aurora" aria-hidden="true"></div>
   <div class="hero-grid">
     <div>
-      <span class="eyebrow"><i></i>Fresh fish kits · pre-orders for Kochi</span>
+      <span class="eyebrow"><i></i>Fresh fish kits · live in Kochi</span>
       <h1>The whole dish,<br><span class="gt">ready to cook.</span></h1>
       <p class="lead">Pick a Kerala dish. We send the fish, the vegetables and the masalas, cut and measured in one chilled pack, with the cooking steps in the app.<span class="more"> Every pack shows when the fish was bought.</span></p>
       <div class="finder" role="search">
@@ -695,7 +695,7 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
         <div class="kpic"><img src="img/kit-chemmeen.webp" alt="Everything in the chemmeen roast kit laid out: prawns, cut vegetables, masala sachets and a recipe card"></div>
         <div class="kbody">
           <div class="kt"><b>Chemmeen roast kit</b><span>Serves 4 · 30 min · Medium spice</span></div>
-          <div class="kbadges"><span><i></i>Packed this morning</span><span>Chilled at 3 °C</span><span>Scan for the steps</span></div>
+          <div class="kbadges"><span><i></i>Packed today</span><span>Chilled at 3 °C</span><span>Scan for the steps</span></div>
           <div class="kgrid">
             <div><i style="background:#E3EEF6"><svg viewBox="0 0 24 24" style="stroke:#0A5C8C" aria-hidden="true"><path d="M3 12c3-5 9-6 13-2l5-3v10l-5-3c-4 4-10 3-13-2z"/></svg></i><b>Fish</b><span>Prawns, cleaned, 500 g</span></div>
             <div><i style="background:#E3F4E7"><svg viewBox="0 0 24 24" style="stroke:#006B48" aria-hidden="true"><path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15M5 19l7-7"/></svg></i><b>Vegetables</b><span>Cut, five items</span></div>
@@ -704,7 +704,7 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
           </div>
         </div>
       </div>
-      <div class="glass g1"><i></i>Packed this morning</div>
+      <div class="glass g1"><i></i>Packed today</div>
       <div class="glass g2"><div class="qrbox"><svg id="qr" viewBox="0 0 7 7" shape-rendering="crispEdges" aria-hidden="true"></svg></div><div><small>Scan the pack</small><b>See the steps</b><span>And when the fish was bought</span></div></div>
       <div class="glass g3"><div class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><b>Chilled at 3 °C</b><span>Sample reading</span></div></div>
     </div>
@@ -716,8 +716,8 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
     <svg viewBox="0 0 24 24" fill="#E3F4E7" stroke="#006B48" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></div>
   <div class="st"><div><b>Cut to the dish</b><span>the right cut for each ingredient</span></div>
     <svg viewBox="0 0 24 24" fill="#E3F4E7" stroke="#006B48" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg></div>
-  <div class="st"><div><b>Next day</b><span>pre-order today, delivered tomorrow</span></div>
-    <svg viewBox="0 0 24 24" fill="#E3F4E7" stroke="#006B48" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v3l2 1.5"/></svg></div>
+  <div class="st"><div><b>About 45&nbsp;min</b><span>from order to your door</span></div>
+    <svg viewBox="0 0 24 24" fill="#E3F4E7" stroke="#006B48" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg></div>
 </div></div>
 </main>
 </div>
@@ -727,9 +727,8 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
 <div class="wrap">
 <section id="fresh">
   <div class="head">
-    <div><h2>Pick your dish</h2><p>Cook kits for Kerala favourites, or fresh fish by the kilo. Everything is a pre-order for the next day.</p></div>
-    <span class="tagline">Sample dishes and prices</span>
-  </div>
+    <div><h2>Pick your dish</h2><p>Cook kits for Kerala favourites, or fresh fish by the kilo. Order now and it reaches you in about 45 minutes.</p></div>
+      </div>
 
   <div class="modes" id="modes" role="tablist" aria-label="What would you like?">
     <button class="mode" type="button" role="tab" aria-selected="true" data-t="kits"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l9-5 9 5v8l-9 5-9-5zM3 8l9 5 9-5M12 13v8"/></svg></span>Cook kits</button>
@@ -754,7 +753,7 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
 </section>
 
 <section id="inside">
-  <div class="head"><div><h2>Inside the kit</h2><p>See what goes in the pack and how the app walks you through the cooking.</p></div><span class="tagline">Sample recipes, to be tested in our kitchen</span></div>
+  <div class="head"><div><h2>Inside the kit</h2><p>See what goes in the pack and how the app walks you through the cooking.</p></div></div>
   <div class="inside">
     <div>
       <div class="insctl">
@@ -782,7 +781,7 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
 
 <div class="trace full" id="trace"><div class="wrap">
   <div class="head">
-    <div><div class="bars" aria-hidden="true"><i></i><i></i><i></i></div><h2>Follow a kit</h2><p>Every pack carries a QR label, and every handoff adds a scan. Pick a kit and step through what the label records, from your pre-order to your door.</p></div>
+    <div><div class="bars" aria-hidden="true"><i></i><i></i><i></i></div><h2>Follow a kit</h2><p>Every pack carries a QR label, and every handoff adds a scan. Pick a kit and step through what the label records, from the harbour to your door.</p></div>
     <div class="chips" id="tchips" role="group" aria-label="Choose a kit"></div>
   </div>
   <div class="follow">
@@ -796,11 +795,11 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
       <div class="stamp" id="stamp">DELIVERED COLD</div>
     </div></div>
     <div class="fright">
-      <figure class="spic"><img id="s-img" src="img/stage-order.webp" alt="" loading="lazy"><span class="ill">Illustrative</span><figcaption class="cap2"><small id="s-step">STEP 1 OF 5</small><b id="s-name">Pre-order placed</b></figcaption></figure>
+      <figure class="spic"><img id="s-img" src="img/stage-harbour.webp" alt="" loading="lazy"><span class="ill">Illustrative</span><figcaption class="cap2"><small id="s-step">STEP 1 OF 5</small><b id="s-name">Fish bought</b></figcaption></figure>
       <div class="read" aria-live="polite">
-        <div><small>Time</small><b id="s-time">20:15</b><span id="s-day">The evening before</span></div>
+        <div><small>Time</small><b id="s-time">05:30</b><span id="s-day">Early this morning</span></div>
         <div><small>Temperature</small><b id="s-temp">&mdash;</b><span id="s-tn">Sample reading</span></div>
-        <div><small>Fish in the pack</small><b id="s-w">&mdash;</b><span id="s-wn">Order confirmed</span></div>
+        <div><small>Fish in the pack</small><b id="s-w">&mdash;</b><span id="s-wn">Bought at the harbour</span></div>
       </div>
       <div class="ctrl2">
         <button class="play" id="play" type="button" aria-label="Play the journey"><svg viewBox="0 0 24 24" fill="currentColor" id="pi"><path d="M7 4.5v15l13-7.5z"/></svg></button>
@@ -815,8 +814,8 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
   <div class="app">
     <div>
       <h2>Cut, packed<br>and at your door</h2>
-      <p>Pre-order today and cook tomorrow. Your kit travels in an insulated bag with ice packs and a temperature tag, and the cooking steps are waiting in the app.</p>
-      <div class="btns"><a class="btn warm" id="wa1" href="#" target="_blank" rel="noopener">Pre-order on WhatsApp</a><a class="btn glass2" href="#fresh">Browse the kits</a></div>
+      <p>Order now and a rider brings it in about 45 minutes. Your kit travels in an insulated bag with ice packs and a temperature tag, and the cooking steps are waiting in the app.</p>
+      <div class="btns"><a class="btn warm" id="wa1" href="#" target="_blank" rel="noopener">Order on WhatsApp</a><a class="btn glass2" href="#fresh">Browse the kits</a></div>
     </div>
     <div class="rwrap">
       <img class="rimg" src="img/rider.webp" alt="A smiling FrescoKart delivery rider in a green jacket with an insulated bag" loading="lazy">
@@ -826,11 +825,11 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
 </section>
 
 <section id="areas">
-  <div class="head"><div><h2>Where should we start?</h2><p>Choose your area. We open where enough neighbours ask, so your choice decides where we go first.</p></div></div>
+  <div class="head"><div><h2>Where we deliver</h2><p>Choose your area and we will bring your order in about 45 minutes.</p></div></div>
   <div class="areas" id="areagrid"></div>
-  <p class="note2">The pilot area is not decided. Choosing an area here does not place an order.</p>
+  <p class="note2">Not on the list? Pick "Somewhere else in Kochi" in the area menu and we will message you when we reach you. Choosing an area here does not place an order.</p>
   <form class="nform" id="nform" hidden novalidate>
-    <b>Get a message when we start in <span id="n-area">your area</span></b>
+    <b>Get a message when we reach your area</b>
     <p class="t">Leave your mobile number. We will message you once, when we are ready to deliver there.</p>
     <div class="nrow"><input id="n-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile number" maxlength="18" aria-label="Mobile number"><button type="submit" id="n-go">Notify me</button></div>
     <input class="hp" id="n-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -841,7 +840,7 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
   <div class="wa">
     <div>
       <h2>Prefer WhatsApp?</h2>
-      <p class="s">Message us the dish and your area. We confirm availability and your delivery slot, and we can take your pre-order right there.</p>
+      <p class="s">Message us the dish and your area. We confirm availability and your delivery time, and we can take your order right there.</p>
       <div class="acts">
         <a class="wabtn" id="wabig" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1 1 8.2 18.6z"/></svg>Message us on WhatsApp</a>
         <small class="dm" id="demo">Demo mode: no business number is set yet, so WhatsApp will ask you to pick a contact.</small>
@@ -850,8 +849,8 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
     <div class="chat" aria-label="Sample chat">
       <div class="who">FrescoKart</div>
       <div class="msgs">
-        <div class="bub out">Hi! I'd like the Chemmeen roast kit (serves 4) for Edappally, tomorrow.</div>
-        <div class="bub in">Thanks! We'll confirm your slot by evening.</div>
+        <div class="bub out">Hi! I'd like the Chemmeen roast kit (serves 4) for Edappally.</div>
+        <div class="bub in">Thanks! Confirmed. It will reach you in about 45 minutes.</div>
       </div>
       <div class="cs">Sample chat</div>
     </div>
@@ -901,14 +900,14 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
     <div><h4>Learn more</h4><a href="privacy.html" target="_blank" rel="noopener">Privacy</a><span class="soon">Terms of service</span><span class="soon">Help and support</span></div>
   </div>
   <hr>
-  <p class="legal">Pre-launch concept. FrescoKart is a working name and is not yet registered. Dishes, recipes, quantities, prices, offers, timings, temperatures, areas and membership benefits on this page are illustrative and have not been tested. Photos are illustrative. Pre-orders are requests; nothing is charged on this page.</p>
+  <p class="legal">FrescoKart is a working name and is not yet registered. Photos are illustrative. Membership benefits are samples and the final terms are not decided. We confirm every order by message, and nothing is charged on this page.</p>
 </div></div>
 
-<div class="mbar" id="mbar" hidden><div><b id="mb-n">0 items</b><span id="mb-t"></span></div><button id="mb-open" type="button">View pre-order</button></div>
+<div class="mbar" id="mbar" hidden><div><b id="mb-n">0 items</b><span id="mb-t"></span></div><button id="mb-open" type="button">View order</button></div>
 
 <div class="scrim" id="scrim"></div>
-<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Your pre-order" aria-hidden="true">
-  <div class="sh-head"><h3>Your pre-order</h3><button id="sclose" type="button" aria-label="Close">&times;</button></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Your order" aria-hidden="true">
+  <div class="sh-head"><h3>Your order</h3><button id="sclose" type="button" aria-label="Close">&times;</button></div>
   <div class="sh-body" id="sbody">
     <div id="slines"></div>
     <form class="pform" id="pform" novalidate>
@@ -919,15 +918,15 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
       <label><span>House name or landmark <span class="opt">optional</span></span><input id="f-addr" autocomplete="street-address" maxlength="200"></label>
       <label><span>Note <span class="opt">optional</span></span><input id="f-note" maxlength="200" placeholder="Cutting style, allergies, delivery time"></label>
       <input class="hp" id="f-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <label class="chk"><input type="checkbox" id="f-consent"><span>I agree to be contacted on WhatsApp or phone about this pre-order. <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a></span></label>
-      <small class="snote" id="snote">This opens WhatsApp with your pre-order written for you. Nothing is charged. We confirm availability, price and your delivery slot by message.</small>
+      <label class="chk"><input type="checkbox" id="f-consent"><span>I agree to be contacted on WhatsApp or phone about this order. <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a></span></label>
+      <small class="snote" id="snote">This opens WhatsApp with your order written for you. Nothing is charged. We confirm availability, price and your delivery time by message.</small>
       <p class="perr" id="perr" role="alert" hidden></p>
     </form>
     <div class="sdone" id="sdone" hidden></div>
   </div>
   <div class="sh-foot" id="sfoot">
     <div class="trow"><span>Total, with offers</span><span id="stotal">&#8377;0</span></div>
-    <button class="placebtn" id="place" type="submit" form="pform">Send pre-order on WhatsApp</button>
+    <button class="placebtn" id="place" type="submit" form="pform">Send order on WhatsApp</button>
     <a class="wa2" id="send" href="#" target="_blank" rel="noopener" hidden>Or send it on WhatsApp instead</a>
   </div>
 </aside>
@@ -938,6 +937,7 @@ button.area.more{justify-content:center;font-weight:600;font-size:16px}
 /* Business WhatsApp number: country code and digits only. */
 var WA="918157863503";
 var AREAS=["Kakkanad","Edappally","Fort Kochi","Panampilly Nagar","MG Road","Kacheripady","Palarivattom","Vyttila","Thevara","Marine Drive","Tripunithura"];
+var ELSE="Somewhere else in Kochi";
 
 var fish=[
  {k:"karimeen",n:"Karimeen",l:"Pearl spot",m:"കരിമീൻ",p:750,c:"#E4F1E9",d:0},
@@ -1040,11 +1040,11 @@ var CHIP_F=[
  {id:"shell",t:"Shellfish",f:function(i){return ["prawns","crab","squid"].indexOf(i.k)>-1}}
 ];
 var TABS={
- kits:{data:kits,colls:COLL_K,chips:CHIP_K,unit:"kit",info:"Pre-order today for delivery tomorrow. We cut and pack in the morning from fresh fish and produce, then send it chilled. Timings are planned.",
+ kits:{data:kits,colls:COLL_K,chips:CHIP_K,unit:"kit",info:"Order now and it reaches you in about 45 minutes. We cut and pack each kit from fresh fish and produce, then send it chilled.",
   hay:function(k){return k.n+" "+k.fish+" "+k.m+" "+k.s},price:function(k){return k.p2},
   sorts:[["pop","Popularity"],["low","Price: low to high"],["high","Price: high to low"],["quick","Quickest to cook"]],card:kitCard,
   cmp:{low:function(a,b){return a.p2-b.p2},high:function(a,b){return b.p2-a.p2},quick:function(a,b){return a.min-b.min}}},
- fish:{data:fish,colls:COL_F,chips:CHIP_F,unit:"item",info:"Fresh fish by the kilo, cleaned and cut the way you ask. Pre-order today for delivery tomorrow.",
+ fish:{data:fish,colls:COL_F,chips:CHIP_F,unit:"item",info:"Fresh fish by the kilo, cleaned and cut the way you ask. Order now and it reaches you in about 45 minutes.",
   hay:function(i){return i.n+" "+i.l+" "+i.m},price:function(i){return i.p},
   sorts:[["pop","Popularity"],["low","Price: low to high"],["high","Price: high to low"]],card:fishCard,
   cmp:{low:function(a,b){return a.p-b.p},high:function(a,b){return b.p-a.p}}}
@@ -1095,11 +1095,11 @@ function kitCard(k){
 function fishCard(i){
   var off=i.d?'<span class="ribbon"><i>%</i>Flat '+i.d+'% OFF</span>':"";
   return '<article class="item" data-kind="f" data-id="'+i.k+'"><div class="pic" style="--t:linear-gradient(160deg,'+i.c+',#fff)">'
-   +'<span class="badge"><i></i>Harbour<span class="cw"> fresh</span></span><span class="stockb">Pre-order</span>'
+   +'<span class="badge"><i></i>Harbour<span class="cw"> fresh</span></span><span class="stockb">45 min</span>'
    +'<img src="img/'+i.k+'.webp" alt="'+i.n+' on white" loading="lazy">'+off+'</div>'
    +'<div class="info"><div class="r1"><h3>'+i.n+'</h3><span class="price">'+inr(i.p)+'<small>/kg</small></span></div>'
    +'<div class="r2">'+i.l+' '+H+' <em>'+i.m+'</em></div>'
-   +'<div class="r3"><div class="meta">Cleaned and cut as you ask<br>Delivered chilled, tomorrow</div><div class="ctl">'+ctlHTML("f",i.k)+'</div></div></div></article>';
+   +'<div class="r3"><div class="meta">Cleaned and cut as you ask<br>Delivered chilled, in about 45 min</div><div class="ctl">'+ctlHTML("f",i.k)+'</div></div></div></article>';
 }
 function anyFilter(){var T=TABS[S.tab];return !!(S.q.trim()||S.coll||T.chips.some(function(c){return S.chips[c.id]}))}
 function renderGrid(){
@@ -1178,28 +1178,28 @@ function generalMsg(topic){
   var area=S.area||"my area";
   if(topic==="meat")return "Hi FrescoKart! Please tell me when you start meat and vegetable kits in "+area+".";
   if(topic==="fruit")return "Hi FrescoKart! Please tell me when diet fruit boxes are available in "+area+".";
-  return "Hi FrescoKart! Please tell me when you start delivering in "+area+".";
+  return "Hi FrescoKart! I'd like to order. Do you deliver to "+area+"?";
 }
 function orderMsg(ref){
   var keys=Object.keys(cart);if(!keys.length)return generalMsg();
   var tot=0,lines=keys.map(function(k){var L=lineInfo(k,cart[k]);tot+=L.total;return "• "+L.name+" ("+L.detail+"), "+L.label+", "+inr(L.total)});
   var nm=$("f-name").value.trim(),ad=$("f-addr").value.trim(),nt=$("f-note").value.trim();
-  return (ref?"Hi FrescoKart! I just placed pre-order "+ref+" on your site:\n":"Hi FrescoKart! I'd like to pre-order for tomorrow:\n")+lines.join("\n")
+  return (ref?"Hi FrescoKart! I just placed order "+ref+" on your site:\n":"Hi FrescoKart! I'd like to order:\n")+lines.join("\n")
     +"\nArea: "+(S.area||"(please ask me)")+(nm?"\nName: "+nm:"")+(ad?"\nAddress: "+ad:"")+(nt?"\nNote: "+nt:"")
-    +"\nTotal with offers: "+inr(tot)+(ref?"\nPlease confirm my slot.":"\nPlease confirm availability and my delivery slot.");
+    +"\nTotal with offers: "+inr(tot)+(ref?"\nPlease confirm my order.":"\nPlease confirm availability and my delivery time.");
 }
 function updWA(){
   $("send").href=waLink(orderMsg());$("wabig").href=waLink(generalMsg());$("wa1").href=waLink(Object.keys(cart).length?orderMsg():generalMsg());
   $("demo").hidden=!!WA;
 }
 function areaOpts(sel){
-  var h='<option value="">Choose your area</option>';AREAS.forEach(function(a){h+='<option>'+a+'</option>'});h+='<option>Somewhere else in Kochi</option>';
+  var h='<option value="">Choose your area</option>';AREAS.forEach(function(a){h+='<option>'+a+'</option>'});h+='<option>'+ELSE+'</option>';
   sel.innerHTML=h;sel.value=S.area||"";
 }
 function setArea(a){
   S.area=a;$("harea").value=a;$("sarea").value=a;
   document.querySelectorAll(".area[data-area]").forEach(function(b){var on=b.dataset.area===a;b.setAttribute("aria-pressed",String(on));b.querySelector("span").textContent=on?"Your area":"Tap to choose"});
-  $("areamsg").innerHTML=a?'Pre-orders for <b>'+esc(a)+'</b> are open. We start delivering to an area once enough neighbours have asked.':'Choose your area. We open a kitchen where enough neighbours ask.';
+  $("areamsg").innerHTML=a?(a===ELSE?'We will check if we can reach you. <a href="#areas">Leave your number</a> to hear when we do.':'Delivering to <b>'+esc(a)+'</b> in about 45 minutes.'):'Choose your area to see your delivery time.';
   showNotify();if(a)voteArea(a);
   updWA();
 }
@@ -1224,7 +1224,7 @@ var sheet=$("sheet"),scrim=$("scrim");
 function cartTotal(){var t=0;Object.keys(cart).forEach(function(k){t+=lineInfo(k,cart[k]).total});return t}
 function renderSheet(){
   var keys=Object.keys(cart),h="";
-  if(!keys.length)h='<p class="sempty">Your basket is empty. Add a kit or some fish, then place your pre-order here.</p>';
+  if(!keys.length)h='<p class="sempty">Your basket is empty. Add a kit or some fish, then place your order here.</p>';
   keys.forEach(function(key){var L=lineInfo(key,cart[key]);
     h+='<div class="sl" data-key="'+key+'"><div><b>'+L.name+'</b><span>'+L.detail+'</span></div><div class="slr"><span class="sp">'+inr(L.total)+'</span><div class="stp sm"><button type="button" data-a="m" aria-label="Less">−</button><span>'+L.label+'</span><button type="button" data-a="p" aria-label="More">+</button></div></div></div>'});
   $("slines").innerHTML=h;$("stotal").textContent=inr(cartTotal());$("place").disabled=!keys.length||sending;
@@ -1250,7 +1250,7 @@ $("sbody").addEventListener("click",function(e){
   bump(line.dataset.key,b.dataset.a);renderSheet();$("count").textContent=Object.keys(cart).length;cartUI();renderGrid();
 });
 
-/* server: pre-orders, area sign-ups and votes. Without a server the page falls back to WhatsApp. */
+/* server: orders, area sign-ups and votes. Without a server the page falls back to WhatsApp. */
 var API={base:"",on:false},sending=false;
 var UTM=(function(){var o={};try{var p=new URLSearchParams(location.search);["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(function(k){var v=p.get(k);if(v)o[k]=v.slice(0,80)});if(document.referrer){var h=document.referrer.split("/")[2];if(h&&h!==location.host)o.ref=h.slice(0,80)}}catch(e){}return o})();
 function apiPost(path,body){
@@ -1263,9 +1263,9 @@ function detectServer(){
 }
 function applyMode(){
   document.body.classList.toggle("srv",API.on);
-  $("place").textContent=API.on?"Place pre-order":"Send pre-order on WhatsApp";
+  $("place").textContent=API.on?"Place order":"Send order on WhatsApp";
   $("send").hidden=!API.on;
-  $("snote").textContent=API.on?"We save your pre-order and message you on WhatsApp to confirm availability, price and your delivery slot. Nothing is charged.":"This opens WhatsApp with your pre-order written for you. Nothing is charged. We confirm availability, price and your delivery slot by message.";
+  $("snote").textContent=API.on?"We save your order and message you on WhatsApp to confirm availability and price. Delivery is about 45 minutes. Nothing is charged on this page.":"This opens WhatsApp with your order written for you. Nothing is charged. We confirm availability, price and your delivery time by message.";
   showNotify();
 }
 function validPhone(v){var d=String(v||"").replace(/\D/g,"");if(d.length===12&&d.indexOf("91")===0)d=d.slice(2);else if(d.length===11&&d.charAt(0)==="0")d=d.slice(1);return /^[6-9]\d{9}$/.test(d)}
@@ -1278,7 +1278,7 @@ function itemsPayload(){
 }
 function submitOrder(){
   var btn=$("place");sending=true;btn.disabled=true;btn.textContent="Sending\u2026";hideErr();
-  var fail=function(msg,id){sending=false;btn.disabled=false;btn.textContent="Place pre-order";showErr(msg,id)};
+  var fail=function(msg,id){sending=false;btn.disabled=false;btn.textContent="Place order";showErr(msg,id)};
   apiPost("api/preorders",{name:$("f-name").value,phone:$("f-phone").value,area:S.area,address:$("f-addr").value,notes:$("f-note").value,items:itemsPayload(),consent:$("f-consent").checked,hp:$("f-hp").value,utm:UTM})
     .then(function(j){
       if(j&&j.ok){sending=false;showDone(j.ref);return}
@@ -1292,8 +1292,8 @@ function showDone(ref){
   cart={};cartUI();renderGrid();
   $("slines").hidden=true;$("pform").hidden=true;$("sfoot").hidden=true;
   var d=$("sdone");d.hidden=false;
-  d.innerHTML='<div class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><h4>Pre-order received</h4><span class="ref">'+esc(ref)+'</span>'
-    +'<p>We will message you on WhatsApp at <b>'+esc(phone)+'</b> to confirm availability, price and your delivery slot. Nothing has been charged.</p>'
+  d.innerHTML='<div class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><h4>Order received</h4><span class="ref">'+esc(ref)+'</span>'
+    +'<p>We will message you on WhatsApp at <b>'+esc(phone)+'</b> to confirm your order. Delivery is about 45 minutes. Nothing has been charged.</p>'
     +'<a class="wabtn" href="'+waLink(msg)+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1 1 8.2 18.6z"/></svg>Confirm on WhatsApp</a>'
     +'<button class="plain" type="button" id="sdone-close">Close</button>';
   $("sdone-close").addEventListener("click",closeSheet);
@@ -1305,7 +1305,7 @@ $("pform").addEventListener("submit",function(e){
   if(API.on){
     if(!S.area){showErr("Choose your delivery area.","sarea");return}
     if(!validPhone($("f-phone").value)){showErr("Enter a valid 10-digit mobile number.","f-phone");return}
-    if(!$("f-consent").checked){showErr("Please tick the box so we can contact you about this pre-order.","f-consent");return}
+    if(!$("f-consent").checked){showErr("Please tick the box so we can contact you about this order.","f-consent");return}
     submitOrder();
   }else{
     window.open(waLink(orderMsg()),"_blank","noopener");
@@ -1318,7 +1318,7 @@ function voteArea(a){
   try{if(sessionStorage.getItem("fkv:"+a))return;sessionStorage.setItem("fkv:"+a,"1")}catch(e){}
   apiPost("api/area-votes",{area:a,utm:UTM}).catch(function(){});
 }
-function showNotify(){var f=$("nform");f.hidden=!(API.on&&S.area);if(!f.hidden)$("n-area").textContent=S.area}
+function showNotify(){$("nform").hidden=!(API.on&&S.area===ELSE)}
 $("nform").addEventListener("submit",function(e){
   e.preventDefault();var msg=$("n-msg"),b=$("n-go"),ph=$("n-phone");msg.hidden=true;msg.className="perr";clearBad();
   if(!validPhone(ph.value)){msg.textContent="Enter a valid 10-digit mobile number.";msg.hidden=false;ph.classList.add("bad");ph.focus();return}
@@ -1326,7 +1326,7 @@ $("nform").addEventListener("submit",function(e){
   b.disabled=true;b.textContent="Sending\u2026";
   apiPost("api/leads",{phone:ph.value,area:S.area,consent:true,hp:$("n-hp").value,utm:UTM}).then(function(j){
     b.disabled=false;b.textContent="Notify me";
-    if(j&&j.ok){msg.className="perr okmsg";msg.textContent=j.already?"You are already on the list for "+S.area+". Thank you!":"Thank you! We will message you when we start in "+S.area+".";msg.hidden=false;ph.value=""}
+    if(j&&j.ok){msg.className="perr okmsg";msg.textContent=j.already?"You are already on the list. Thank you!":"Thank you! We will message you when we reach your area.";msg.hidden=false;ph.value=""}
     else{msg.textContent=(j&&j.message)||"Something went wrong. Please try again.";msg.hidden=false}
   }).catch(function(){b.disabled=false;b.textContent="Notify me";msg.textContent="We couldn't reach the server. Please try again.";msg.hidden=false});
 });
@@ -1411,18 +1411,18 @@ tt.addEventListener("click",function(){window.scrollTo({top:0,behavior:"smooth"}
 
 /* follow a kit */
 var tk=kits[2];
-var STAGES=["Pre-order placed","Fish bought","Cut and packed","On the way","At your door"];
-var SHORT=["Ordered","Bought","Cut and packed","On the way","At your door"];
-var PLACE=["App or WhatsApp, the evening before","Harbour, early morning","Our kitchen, cut to the dish","Insulated bag with ice packs","Delivered, still cold"];
-var DAY=["The evening before","Early morning","Delivery morning","Delivery morning","Delivery morning"];
-var TEMPS=[null,1.6,2.0,2.8,3.0];
+var STAGES=["Fish bought","Order placed","Cut and packed","On the way","At your door"];
+var SHORT=["Bought","Ordered","Cut and packed","On the way","At your door"];
+var PLACE=["Harbour, early morning","App or WhatsApp","Our kitchen, cut to the dish","Insulated bag with ice packs","Delivered, still cold"];
+var DAY=["Early this morning","When you order","12 min after ordering","24 min after ordering","45 min after ordering"];
+var TEMPS=[1.6,null,2.0,2.8,3.0];
 var CODES={pollichathu:"FK-0507",karimeencurry:"FK-0508",chemmeen:"FK-0412",mathi:"FK-0388",ayala:"FK-0431",koonthal:"FK-0446"};
-function times(idx){var o=idx*7;return [1215,1770+o,1930+o,2060+o,2105+o]}
-var STAGE_IMG=["stage-order","stage-harbour","stage-kitchen","stage-bag","stage-door"];
-var STAGE_ALT=["A person placing an order on a phone at home in the evening","A buyer choosing fish from iced crates at a harbour at dawn","A worker in a hair net and apron cutting fish in a small clean kitchen","An open insulated bag with sealed packs and ice packs","A rider in a green jacket handing a bag to a person at their door"];
+function times(idx){var o=idx*7;return [330+o,680+o,692+o,704+o,725+o]}
+var STAGE_IMG=["stage-harbour","stage-order","stage-kitchen","stage-bag","stage-door"];
+var STAGE_ALT=["A buyer choosing fish from iced crates at a harbour at dawn","A person placing an order on a phone at home","A worker in a hair net and apron cutting fish in a small clean kitchen","An open insulated bag with sealed packs and ice packs","A rider in a green jacket handing a bag to a person at their door"];
 var stg=0,prevStg=-1,curImg=-1,playTimer=null;
 var PLAY_ICON='<path d="M7 4.5v15l13-7.5z"/>',PAUSE_ICON='<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>';
-function wTxt(s){return s===0?"\u2014":(s===1?tk.buy.toFixed(2)+" kg whole":tk.pack.toFixed(2)+" kg cut")}
+function wTxt(s){return s===1?"\u2014":(s===0?tk.buy.toFixed(2)+" kg whole":tk.pack.toFixed(2)+" kg cut")}
 function setStageImg(s){
   if(s===curImg)return;curImg=s;
   var im=$("s-img"),src="img/"+STAGE_IMG[s]+".webp";
@@ -1434,16 +1434,16 @@ function renderFollow(){
   $("l-name").textContent=tk.n;$("l-ml").textContent=tk.m;$("l-code").textContent=CODES[tk.id];$("l-time").textContent=tk.min+" min";
   for(var i=0;i<5;i++){
     var cls=i<s?"done":(i===s?"now":"todo");if(i===s&&s>prevStg&&prevStg>=0)cls+=" new";
-    var val=i===0?"\u2014":TEMPS[i].toFixed(1)+" \u00B0C<br>"+wTxt(i);
+    var val=TEMPS[i]==null?"\u2014":TEMPS[i].toFixed(1)+" \u00B0C<br>"+wTxt(i);
     h+='<li class="'+cls+'"><span class="n">'+String(i+1).padStart(2,"0")+'</span><span class="t">'+(i<=s?hm(T[i]):"--:--")+'</span><span class="e"><b>'+STAGES[i]+'</b><span>'+PLACE[i]+'</span></span><span class="v">'+(i<=s?val:"\u2014")+'</span></li>';
   }
   $("scans").innerHTML=h;
   $("stamp").classList.toggle("on",s===4);
   $("s-step").textContent="STEP "+(s+1)+" OF 5";$("s-name").textContent=STAGES[s];
   $("s-time").textContent=hm(T[s]);$("s-day").textContent=DAY[s];
-  $("s-temp").textContent=s===0?"\u2014":TEMPS[s].toFixed(1)+" \u00B0C";$("s-tn").textContent=s===0?"Sample reading":"Target: 3 \u00B0C or below";
+  $("s-temp").textContent=TEMPS[s]==null?"\u2014":TEMPS[s].toFixed(1)+" \u00B0C";$("s-tn").textContent=TEMPS[s]==null?"Sample reading":"Target: 3 \u00B0C or below";
   $("s-w").textContent=wTxt(s);
-  $("s-wn").textContent=["Order confirmed","Bought at the harbour","Down "+(tk.buy-tk.pack).toFixed(2)+" kg in cleaning","Sealed, in the bag","Delivered, cold"][s];
+  $("s-wn").textContent=["Bought at the harbour","Order confirmed","Down "+(tk.buy-tk.pack).toFixed(2)+" kg in cleaning","Sealed, in the bag","Delivered, cold"][s];
   var r=$("rng");r.value=s;r.style.setProperty("--p","calc(23px + (100% - 46px) * "+(s/4)+")");
   document.querySelectorAll("#stops button").forEach(function(b){b.setAttribute("aria-current",String(+b.dataset.i===s))});
   setStageImg(s);

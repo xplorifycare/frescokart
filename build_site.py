@@ -14,7 +14,7 @@ SRC = ROOT / "frescokart-landing.html"
 OUT = ROOT / "web" / "index.html"
 
 DESCRIPTION = ("Ready-to-cook Kerala fish kits: fresh fish, cut vegetables and measured masalas in one chilled pack, "
-               "with the cooking steps in the app. Pre-orders for Kochi.")
+               "with the cooking steps in the app. Order now in Kochi, delivered in about 45 minutes.")
 
 HEAD = (
     '<!doctype html>\n<html lang="en">\n'

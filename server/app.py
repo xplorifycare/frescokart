@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""FrescoKart pre-order server.
+"""FrescoKart order server.
 
-Serves the landing page from ../web, takes pre-orders, "tell me when you start" sign-ups
+Serves the landing page from ../web, takes orders, "tell me when you reach my area" sign-ups
 and area votes into SQLite, and has a password-protected admin page with CSV export.
 Python 3.9+, standard library only (Postgres needs psycopg2, see below).
 
@@ -22,7 +22,7 @@ Settings (environment variables, all optional when running locally):
                       (SQLite) or in the database (Postgres)
   FK_TRUST_PROXY=1    read the visitor's IP from X-Forwarded-For (set this behind a reverse proxy; always on for Vercel)
   FK_CORS_ORIGIN      let one other site call the API, for example https://www.example.com
-  FK_NOTIFY_WEBHOOK   a URL that receives {"text": "..."} for every new pre-order or sign-up
+  FK_NOTIFY_WEBHOOK   a URL that receives {"text": "..."} for every new order or sign-up
 """
 import argparse
 import base64
@@ -56,17 +56,37 @@ IST = timezone(timedelta(hours=5, minutes=30))
 
 AREAS = ["Kakkanad", "Edappally", "Fort Kochi", "Panampilly Nagar", "MG Road", "Kacheripady",
          "Palarivattom", "Vyttila", "Thevara", "Marine Drive", "Tripunithura", "Somewhere else in Kochi"]
-STATUSES = ("new", "confirmed", "delivered", "cancelled", "spam")
+STATUSES = ("new", "confirmed", "preparing", "out for delivery", "delivered", "cancelled", "spam")
 MAX_BODY = 32 * 1024
 CORS_ORIGIN = os.environ.get("FK_CORS_ORIGIN", "").strip()
 ON_VERCEL = bool(os.environ.get("VERCEL"))
 TRUST_PROXY = os.environ.get("FK_TRUST_PROXY", "") == "1" or ON_VERCEL
 WEBHOOK = os.environ.get("FK_NOTIFY_WEBHOOK", "").strip()
-# Locally only FK_DATABASE_URL counts, so a DATABASE_URL meant for another project is never picked up by accident.
-DATABASE_URL = next((os.environ[k].strip() for k in (("FK_DATABASE_URL", "DATABASE_URL", "POSTGRES_URL", "POSTGRES_URL_NON_POOLING")
-                                                      if ON_VERCEL else ("FK_DATABASE_URL",)) if os.environ.get(k, "").strip()), "")
+
+
+def find_database_url():
+    # Locally only FK_DATABASE_URL counts, so a DATABASE_URL meant for another project is never picked up by accident.
+    # On Vercel the Neon integration sets DATABASE_URL, but a custom prefix on the integration renames the variables
+    # (for example STORAGE_DATABASE_URL), so after the usual names any variable that holds a postgres address is used.
+    url = os.environ.get("FK_DATABASE_URL", "").strip()
+    if url or not ON_VERCEL:
+        return url
+    for name in ("DATABASE_URL", "POSTGRES_URL", "POSTGRES_URL_NON_POOLING"):
+        if os.environ.get(name, "").strip():
+            return os.environ[name].strip()
+    found = sorted((k for k, v in os.environ.items() if v.strip().lower().startswith(("postgres://", "postgresql://"))),
+                   key=lambda k: ("UNPOOLED" in k or "NON_POOLING" in k, k))
+    return os.environ[found[0]].strip() if found else ""
+
+
+def database_hints():
+    """Names (never values) of settings that look like a database, to help when the connection is missing."""
+    return sorted(k for k in os.environ if any(w in k.upper() for w in ("DATABASE", "POSTGRES", "NEON", "PGHOST")))
+
+
+DATABASE_URL = find_database_url()
 USE_PG = bool(DATABASE_URL)
-LIMITS = {"/api/preorders": (int(os.environ.get("FK_LIMIT_PREORDERS", "8")), 3600),
+LIMITS = {"/api/preorders": (int(os.environ.get("FK_LIMIT_ORDERS") or os.environ.get("FK_LIMIT_PREORDERS", "8")), 3600),
           "/api/leads": (int(os.environ.get("FK_LIMIT_LEADS", "10")), 3600),
           "/api/area-votes": (int(os.environ.get("FK_LIMIT_VOTES", "60")), 3600)}
 
@@ -83,6 +103,7 @@ PAGE_CSP = ("default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-
 ADMIN_CSP = ("default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; "
              "frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
 
+# The orders table keeps its first name, "preorders", so databases created earlier keep working.
 SCHEMA_SQLITE = """
 CREATE TABLE IF NOT EXISTS preorders(
   id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new',
@@ -374,7 +395,7 @@ def handle_preorder(d, ip, ua):
     if not area:
         return bad("area", "Choose your delivery area.")
     if d.get("consent") is not True:
-        return bad("consent", "Please tick the box so we can contact you about this pre-order.")
+        return bad("consent", "Please tick the box so we can contact you about this order.")
     parsed = clean_items(d.get("items"))
     if not parsed:
         return bad("items", "Your basket looks empty. Add a kit or some fish first.")
@@ -395,7 +416,7 @@ def handle_preorder(d, ip, ua):
              items_json, total, 1, campaign_of(utm), json.dumps(utm), ih, clean(ua, 200)))
         c.commit()
     ref = "FK-%06d" % pid
-    notify("New pre-order %s: %s, %s, %s. Rs %s. %s" % (ref, clean(d.get("name"), 60) or "no name", phone, area, "%g" % total, items_text(items)))
+    notify("New order %s: %s, %s, %s. Rs %s. %s" % (ref, clean(d.get("name"), 60) or "no name", phone, area, "%g" % total, items_text(items)))
     return 200, {"ok": True, "id": pid, "ref": ref}
 
 
@@ -541,7 +562,7 @@ def render_admin():
     for r in pre:
         ref = "FK-%06d" % r["id"]
         opts = "".join('<option%s>%s</option>' % (" selected" if s == r["status"] else "", s) for s in STATUSES)
-        msg = "Hi %s, this is FrescoKart about your pre-order %s. We can confirm your kit and a delivery slot. Is that alright?" % (r["name"] or "there", ref)
+        msg = "Hi %s, this is FrescoKart about your order %s. Please confirm your delivery address so we can send it out." % (r["name"] or "there", ref)
         extra = " ".join(x for x in (r["address"], r["notes"]) if x)
         pre_rows += ("<tr><td><b>%s</b><br><span class=muted>%s</span></td><td><select data-id=%d>%s</select></td>"
                      "<td>%s<br>%s<br><a class=wa href=\"%s\" target=_blank rel=noopener>WhatsApp</a></td><td>%s</td><td>%s</td>"
@@ -553,7 +574,7 @@ def render_admin():
         "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (esc(to_ist(r["created_at"])), esc(r["phone"]), esc(r["area"]), esc(r["campaign"] or "direct"))
         for r in leads)
 
-    numeric = {"Votes", "Sign-ups", "Pre-orders", "Value", "Total"}
+    numeric = {"Votes", "Sign-ups", "Orders", "Value", "Total"}
 
     def table(head, rows, empty):
         if not rows:
@@ -563,11 +584,11 @@ def render_admin():
 
     return """<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title>FrescoKart admin</title><style>%s</style>
-<header><b>FrescoKart admin</b><span><a href="/admin/export.csv">Pre-orders CSV</a><a href="/admin/export.csv?type=leads">Sign-ups CSV</a><a href="/admin/export.csv?type=votes">Area votes CSV</a><a href="/">View site</a></span></header>
+<header><b>FrescoKart admin</b><span><a href="/admin/export.csv">Orders CSV</a><a href="/admin/export.csv?type=leads">Sign-ups CSV</a><a href="/admin/export.csv?type=votes">Area votes CSV</a><a href="/">View site</a></span></header>
 <main>
 <div class="cards">
-<div class="card"><b>%d</b><span>Pre-orders (%d new)</span></div>
-<div class="card"><b>Rs %s</b><span>Pre-order value</span></div>
+<div class="card"><b>%d</b><span>Orders (%d new)</span></div>
+<div class="card"><b>Rs %s</b><span>Order value</span></div>
 <div class="card"><b>%d</b><span>Area sign-ups with a number</span></div>
 <div class="card"><b>%d</b><span>Area votes</span></div>
 </div>
@@ -575,16 +596,16 @@ def render_admin():
 %s
 <h2>Ads and sources</h2>
 %s
-<h2>Pre-orders</h2>
+<h2>Orders</h2>
 %s
 <h2>Area sign-ups</h2>
 %s
-<p class="muted">Times are in IST. Votes count one per visitor per area per day. Pre-order totals are what the visitor's page calculated, so confirm prices by message.</p>
+<p class="muted">Times are in IST. Votes count one per visitor per area per day. Order totals are what the visitor's page calculated, so confirm prices by message.</p>
 </main><script>%s</script></html>""" % (
         ADMIN_CSS, n_pre, n_new, "{:,.0f}".format(value), n_leads, n_votes,
-        table(["Area", "Votes", "Sign-ups", "Pre-orders", "Value"], area_rows, "Nothing yet."),
-        table(["Source or campaign", "Votes", "Sign-ups", "Pre-orders"], camp_rows, "Nothing yet."),
-        table(["Ref", "Status", "Customer", "Area", "Items", "Total", "Notes and source"], pre_rows, "No pre-orders yet."),
+        table(["Area", "Votes", "Sign-ups", "Orders", "Value"], area_rows, "Nothing yet."),
+        table(["Source or campaign", "Votes", "Sign-ups", "Orders"], camp_rows, "Nothing yet."),
+        table(["Ref", "Status", "Customer", "Area", "Items", "Total", "Notes and source"], pre_rows, "No orders yet."),
         table(["When", "Phone", "Area", "Source"], lead_rows, "No sign-ups yet."), ADMIN_JS)
 
 
@@ -685,23 +706,31 @@ class Handler(BaseHTTPRequestHandler):
 
     def health(self):
         # The page calls this to decide between "save on the server" and "open WhatsApp". Adding ?deep=1 also tests the database.
+        deep = "deep" in parse_qs(urlparse(self.path).query)
         if ON_VERCEL and not USE_PG:
-            return self.send_json(503, {"ok": False, "error": "no_database"})
-        if "deep" in parse_qs(urlparse(self.path).query):
+            body = {"ok": False, "error": "no_database"}
+            if deep:
+                body["database_settings_seen"] = database_hints()  # names only, to spot a wrong prefix
+            return self.send_json(503, body)
+        if deep:
             try:
                 with closing(db()) as c:
                     c.execute("SELECT 1").fetchone()
-            except Exception:
+            except Exception as e:
                 traceback.print_exc()
-                return self.send_json(503, {"ok": False, "error": "database"})
+                return self.send_json(503, {"ok": False, "error": "database", "detail": type(e).__name__})
             return self.send_json(200, {"ok": True, "db": "postgres" if USE_PG else "sqlite"})
         self.send_json(200, {"ok": True})
 
     def no_database(self, path):
         if path.startswith("/api/"):
-            return self.send_json(503, {"ok": False, "error": "no_database", "message": "Pre-orders are not being saved yet. Please use WhatsApp."})
+            return self.send_json(503, {"ok": False, "error": "no_database", "message": "Orders are not being saved yet. Please use WhatsApp."})
+        if not self.admin_ok():
+            return
+        seen = ", ".join(database_hints()) or "none"
         self.send_bytes(503, "text/plain; charset=utf-8",
-                        b"No database is connected yet. In Vercel, open the project's Storage tab, add a Postgres database, then redeploy.")
+                        ("No database is connected yet. In Vercel, open the project's Storage tab, add a Postgres database, then redeploy. "
+                         "Database settings found here: %s." % seen).encode("utf-8"))
 
     def api_post(self, path):
         ip = self.ip()
@@ -744,8 +773,8 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/admin" and method in ("GET", "HEAD"):
             return self.send_bytes(200, "text/html; charset=utf-8", render_admin().encode("utf-8"), method == "HEAD", csp=ADMIN_CSP)
         if path == "/admin/export.csv" and method in ("GET", "HEAD"):
-            kind = (parse_qs(urlparse(self.path).query).get("type") or ["preorders"])[0]
-            name = {"leads": "area-signups", "votes": "area-votes"}.get(kind, "preorders")
+            kind = (parse_qs(urlparse(self.path).query).get("type") or ["orders"])[0]
+            name = {"leads": "area-signups", "votes": "area-votes"}.get(kind, "orders")
             return self.send_bytes(200, "text/csv; charset=utf-8", export_csv(kind), method == "HEAD",
                                    extra={"Content-Disposition": 'attachment; filename="frescokart-%s.csv"' % name})
         if path == "/admin/status" and method == "POST":
@@ -782,7 +811,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     global WEB_DIR, DATA_DIR, ADMIN_PW
-    ap = argparse.ArgumentParser(description="FrescoKart pre-order server")
+    ap = argparse.ArgumentParser(description="FrescoKart order server")
     ap.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))
     ap.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8080")))
     ap.add_argument("--data-dir", help="folder for the database")
