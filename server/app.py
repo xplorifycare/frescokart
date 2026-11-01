@@ -598,9 +598,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def ip(self):
         if TRUST_PROXY:
-            forwarded = self.headers.get("X-Forwarded-For", "")
-            if forwarded:
-                return forwarded.split(",")[0].strip()
+            for name in (("X-Vercel-Forwarded-For", "X-Forwarded-For", "X-Real-IP") if ON_VERCEL else ("X-Forwarded-For",)):
+                forwarded = self.headers.get(name, "")
+                if forwarded:
+                    return forwarded.split(",")[0].strip()
         return self.client_address[0]
 
     def send_bytes(self, code, ctype, body, head=False, cache="no-store", csp=None, extra=None, api=False):

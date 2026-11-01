@@ -4,6 +4,7 @@ import os
 import sys
 from http.server import BaseHTTPRequestHandler
 
+os.environ.setdefault("VERCEL", "1")  # only Vercel runs the files in api/, so make sure the server knows it
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from server.app import Handler  # noqa: E402
 
