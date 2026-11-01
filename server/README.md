@@ -64,6 +64,7 @@ All optional, set as environment variables.
 - IP addresses are not stored. A scrambled visitor code that changes every day is used to count one area tap per visitor per day.
 - The admin page uses HTTP Basic sign-in, escapes everything it shows, and sends a strict content security policy. CSV downloads neutralise cells that start with `=`, `+`, `-` or `@`.
 - Only files with known web extensions inside `web/` are served. The server code and the data folder cannot be fetched.
+- In Postgres the tables live in their own `frescokart` schema with row security switched on. They cannot clash with another app's tables in a shared database, and a Supabase-style data API, which only serves the public schema, cannot reach them.
 
 ## Put it online
 

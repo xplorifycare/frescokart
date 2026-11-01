@@ -120,6 +120,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS votes_area_ip ON area_votes(area, ip_hash);
 CREATE INDEX IF NOT EXISTS preorders_created ON preorders(created_at);
 """
 
+# In Postgres the tables live in their own schema, so they can never clash with another app's tables in a shared database
+# (a "leads" table is common) and are not reachable through a Supabase-style data API, which only serves the public schema.
+PG_SCHEMA = "frescokart"
+
 # The same tables for Postgres, plus two small ones: kv keeps the visitor-code secret, rate_hits the request limits.
 SCHEMA_PG = """
 CREATE TABLE IF NOT EXISTS preorders(
@@ -194,6 +198,7 @@ class Conn:
     """The few calls the server needs, the same for SQLite (a local file) and Postgres (Vercel). Write SQL with ? placeholders."""
 
     def __init__(self):
+        self.new_transaction = True
         if USE_PG:
             import psycopg2
             import psycopg2.extras
@@ -204,6 +209,10 @@ class Conn:
 
     def execute(self, sql, params=()):
         cur = self.raw.cursor()
+        if USE_PG and self.new_transaction:
+            # SET LOCAL lasts for one transaction, so it also works behind a connection pooler.
+            cur.execute("SET LOCAL search_path TO " + PG_SCHEMA)
+            self.new_transaction = False
         cur.execute(sql.replace("?", "%s") if USE_PG else sql, params)
         return cur
 
@@ -214,6 +223,7 @@ class Conn:
 
     def commit(self):
         self.raw.commit()
+        self.new_transaction = True
 
     def close(self):
         self.raw.close()
@@ -229,7 +239,12 @@ def init_db():
     if USE_PG:
         with closing(Conn()) as c:
             c.execute("SELECT pg_advisory_xact_lock(727274)")  # two cold starts creating the tables at once would collide
+            c.execute("CREATE SCHEMA IF NOT EXISTS " + PG_SCHEMA)
             c.execute(SCHEMA_PG)
+            for table in ("preorders", "leads", "area_votes", "kv", "rate_hits"):
+                # Row security with no policies: the data-API roles of a shared database see nothing here.
+                # The role the server connects with owns the tables, so it is not affected.
+                c.execute("ALTER TABLE %s ENABLE ROW LEVEL SECURITY" % table)
             c.commit()
     else:
         DATA_DIR.mkdir(parents=True, exist_ok=True)
