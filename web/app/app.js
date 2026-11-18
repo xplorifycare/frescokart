@@ -123,6 +123,30 @@
   })();
   var installPrompt = null, popKey = "", focusId = "";
 
+  /* ---------- add to home screen ----------
+     Android Chrome and desktop browsers fire beforeinstallprompt, so one tap installs.
+     iPhone and iPad never ask, so we show the two Safari steps instead. */
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  function isInstalled() {
+    try { return window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; }
+  }
+  function canInstall() { return !isInstalled() && (!!installPrompt || isIOS); }
+  function installSnoozed() { var t = load("fk-install-hide", 0); return !!t && Date.now() - t < 14 * 864e5; }
+  function installCard() {
+    if (!canInstall() || installSnoozed()) return "";
+    return '<div class="install"><img src="/app/icon-192.png" alt="" width="40" height="40"><span class="t"><b>Get the FrescoKart app</b><span>Add it to your home screen. Free, opens in one tap.</span></span>' +
+      '<button class="add sm" type="button" data-act="install" aria-label="Add FrescoKart to your home screen">ADD</button><button class="iconbtn x" type="button" data-act="hideinstall" aria-label="Not now">' + ic("close", 18, 2.2) + "</button></div>";
+  }
+  function iosSheet() {
+    $("#layer").innerHTML = '<div class="sheetwrap" data-act="closelayer"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ios-h" data-act="noop"><div class="grab" aria-hidden="true"></div><div style="padding:0 20px">' +
+      '<div style="display:flex;align-items:center;gap:12px"><img src="/app/icon-192.png" alt="" width="48" height="48" style="border-radius:12px"><h2 id="ios-h" class="h2">Add FrescoKart to your home screen</h2></div>' +
+      '<ol class="howto"><li><span class="n">1</span><span>Tap the <b>Share</b> button ' + ic("share", 18, 2.2) + ' in Safari’s toolbar.</span></li>' +
+      '<li><span class="n">2</span><span>Scroll down and tap <b>Add to Home Screen</b>.</span></li>' +
+      '<li><span class="n">3</span><span>Tap <b>Add</b>. FrescoKart now opens from your home screen, like an app.</span></li></ol>' +
+      '<button class="cta green" type="button" data-act="closelayer">Got it</button></div></div></div>';
+    var b = $("#layer .cta"); if (b) b.focus();
+  }
+
   function saveBasket() { save("fk-app-basket", basket); }
   function saveProfile() { save("fk-app-profile", profile); }
   function saveOrders() { save("fk-app-orders", orders.slice(0, 30)); }
@@ -321,6 +345,8 @@
       '<a class="bagbtn" href="#/basket" aria-label="Basket, ' + t.n + ' items">' + ic("bag", 22, 1.9) + (t.n ? '<span class="badge">' + t.n + "</span>" : "") + "</a></div>" +
       '<a class="search" href="#/search">' + ic("search", 20, 2.2).replace('stroke="currentColor"', 'stroke="#006B48"') + '<span>Search “karimeen pollichathu”</span></a>' +
       '<div class="fresh"><span class="livedot" aria-hidden="true"></span><span>Today’s fish was bought at the harbour this morning</span></div></header>';
+
+    h += installCard();
 
     // categories
     h += '<section class="sec" aria-labelledby="cat-h"><h2 id="cat-h" class="h2" style="padding:0 16px 12px">What are you cooking tonight?</h2><div class="rail" data-keep="cats" style="padding-top:4px">';
@@ -691,7 +717,8 @@
     }
     h += '<section class="group"><a class="row" href="' + waLink(o.wa || "Hi FrescoKart! About my order " + o.ref + ".") + '" target="_blank" rel="noopener"><span class="tile" style="background:#E7F7EC;color:#0F7A3E">' + ic("wa", 20, 1.9) +
       '</span><span class="t"><b>' + (si === 0 && !off ? "Confirm on WhatsApp" : "Message us on WhatsApp") + "</b><span>" + (si === 0 && !off ? "Speeds up your order" : "About this order") + '</span></span><span class="chev">' + ic("chev", 20, 2) + "</span></a>" +
-      (done ? '<a class="row" href="#/kitchen"><span class="tile">' + ic("pot", 20, 1.9) + '</span><span class="t"><b>Cook along</b><span>Step by step, with timers</span></span><span class="chev">' + ic("chev", 20, 2) + "</span></a>" : "") + "</section>";
+      (done ? '<a class="row" href="#/kitchen"><span class="tile">' + ic("pot", 20, 1.9) + '</span><span class="t"><b>Cook along</b><span>Step by step, with timers</span></span><span class="chev">' + ic("chev", 20, 2) + "</span></a>" : "") +
+      (canInstall() && !done && !off ? '<button class="row" type="button" data-act="install" style="width:100%;text-align:left"><span class="tile">' + ic("download", 20, 1.9) + '</span><span class="t"><b>Add FrescoKart to your home screen</b><span>Check this order in one tap</span></span><span class="chev">' + ic("chev", 20, 2) + "</span></button>" : "") + "</section>";
     h += '<section class="group" aria-labelledby="sum-h"><div class="gh"><h2 id="sum-h" class="h3">Your order</h2><span class="muted" style="font:500 12px/1 var(--body)">' + esc(day(placed)) + ", " + clock(placed) + "</span></div>" +
       o.items.map(function (l) {
         return '<div class="row" style="min-height:64px"><img src="' + esc(l.img) + '" alt="" style="width:40px;height:40px;border-radius:10px;object-fit:cover"><span class="t"><b>' + esc(l.name) + "</b><span>" + esc(l.detail) + " · " + esc(l.label) + '</span></span><span class="price" style="font-size:15px">' + inr(l.total) + "</span></div>";
@@ -812,7 +839,7 @@
     function row(href, icon, t, s, ext) { return '<a class="row" href="' + href + '"' + (ext ? ' target="_blank" rel="noopener"' : "") + '><span class="tile">' + ic(icon, 20, 1.9) + '</span><span class="t"><b>' + t + "</b>" + (s ? "<span>" + s + "</span>" : "") + '</span><span class="chev">' + ic("chev", 20, 2) + "</span></a>"; }
     h += '<section class="group">' + row("#/area", "pin", "Delivery area", esc(profile.area && profile.area !== ELSE ? profile.area : "Not chosen yet")) + row("#/orders", "orders", "Your orders", orders.length ? orders.length + " on this phone" : "None yet") + row("#/kitchen", "pot", "Kitchen", "Cook along with timers") + "</section>";
     h += '<section class="group">' + row(waLink("Hi FrescoKart! I need help."), "wa", "Help on WhatsApp", "+91 81578 63503", true) + row("/privacy.html", "shield", "Privacy notice", "", true) +
-      (installPrompt ? '<button class="row" type="button" data-act="install" style="width:100%;text-align:left"><span class="tile">' + ic("download", 20, 1.9) + '</span><span class="t"><b>Install the app</b><span>Opens from your home screen</span></span><span class="chev">' + ic("chev", 20, 2) + "</span></button>" : "") + "</section>";
+      (canInstall() ? '<button class="row" type="button" data-act="install" style="width:100%;text-align:left"><span class="tile">' + ic("download", 20, 1.9) + '</span><span class="t"><b>Add to home screen</b><span>Opens in one tap, like an app</span></span><span class="chev">' + ic("chev", 20, 2) + "</span></button>" : "") + "</section>";
     h += '<footer class="foot"><img src="/img/symbol-colour.svg" alt="" width="30" height="29"><span class="brand">Fresco<span>Kart</span></span><p>Fresh fish kits, live in Kochi.</p><span class="mono">VERSION ' + VERSION + "</span></footer></div></div>";
     return { html: h, title: "Account" };
   }
@@ -910,7 +937,18 @@
       var k = kitById[el.dataset.id];
       try { navigator.share({ title: k.n, text: k.n + " from FrescoKart: fish, cut vegetables and masalas in one chilled pack.", url: location.origin + "/app/#/kit/" + k.id }).catch(function () { }); } catch (e) { }
     },
-    install: function () { if (!installPrompt) return; installPrompt.prompt(); installPrompt.userChoice.then(function () { installPrompt = null; refresh(); }); },
+    install: function () {
+      if (installPrompt) {
+        var p = installPrompt; installPrompt = null;  // the browser lets each prompt be shown once
+        p.prompt();
+        p.userChoice.then(function (c) { if (c && c.outcome === "dismissed") save("fk-install-hide", Date.now()); refresh(); }).catch(function () { refresh(); });
+        return;
+      }
+      if (isIOS) iosSheet();
+    },
+    hideinstall: function () { save("fk-install-hide", Date.now()); refresh(); },
+    closelayer: function () { closeLayer(); },
+    noop: function () { },
     saveprofile: function () {
       var ph = ($("#p-phone") || {}).value || "";
       if (ph && !validPhone(ph)) { toast("That mobile number doesn’t look right."); return; }
@@ -927,10 +965,17 @@
   });
   document.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && e.target.id === "q") e.target.blur();
+    if (e.key === "Escape" && $("#layer .sheetwrap")) closeLayer();
+  });
+  window.addEventListener("appinstalled", function () {
+    installPrompt = null; save("fk-install-hide", Date.now()); refresh(); toast("FrescoKart is on your home screen");
   });
   window.addEventListener("online", function () { $("#net").hidden = true; checkServer(); });
   window.addEventListener("offline", function () { $("#net").hidden = false; });
-  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); installPrompt = e; if (cur.path === "/account") refresh(); });
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault(); installPrompt = e;
+    if (cur.path === "/" || cur.path === "/account" || (cur.path || "").indexOf("/order/") === 0) refresh();
+  });
   window.addEventListener("storage", function (e) {
     if (e.key === "fk-app-basket") { basket = load("fk-app-basket", {}); refresh(); }
   });
