@@ -9,6 +9,7 @@ Visitors pick a kit, build a basket and place an order, delivered in about 45 mi
 | Path | What it is |
 | --- | --- |
 | `web/` | The site visitors see: `index.html` (generated), `privacy.html` and `img/`. |
+| `web/app/` | The customer app at `/app/`: browse, basket, checkout, live order status, cook-along mode. Installable on a phone from the browser. `menu.js` is generated. |
 | `frescokart-landing.html` | The source of the home page. Edit this one. |
 | `build_site.py` | Turns `frescokart-landing.html` into `web/index.html`. |
 | `server/app.py` | The server: orders, sign-ups, area votes, admin page and CSV downloads. SQLite when you run it yourself, Postgres on Vercel. |
@@ -43,9 +44,18 @@ Until a database is connected, `/api/health` says so and the page quietly falls 
 
 Use the production address for ads and sharing. Preview deployments can sit behind Vercel's own sign-in.
 
+## The app
+
+The app lives at `/app/` on the same address as the site (for example `https://your-domain/app/`). It sends orders to the same server, so they show on the admin page like any other order.
+
+- **Menu and prices** come from the website. Change them in `frescokart-landing.html`, then run `python build_site.py`, which also rewrites `web/app/menu.js`.
+- **Live status.** When you change an order's status on the admin page (confirmed, preparing, out for delivery, delivered, cancelled), the customer's order screen shows it within about 30 seconds. Each order gets a private key, so only the phone that placed it can follow it.
+- **Install.** On Android, Chrome offers "Install app" (also in the app's Account tab). On iPhone, Safari's Share menu has "Add to Home Screen".
+- **Saved on the phone.** The basket, the customer's details and their order list stay in that phone's browser. There is no login yet.
+
 ## Change the page
 
-Edit `frescokart-landing.html`, run `python build_site.py`, and commit both files. The business WhatsApp number is the `WA` value near the top of the page script, and it is also written in `web/privacy.html`.
+Edit `frescokart-landing.html`, run `python build_site.py`, and commit the changed files. The business WhatsApp number is the `WA` value near the top of the page script, and it is also written in `web/privacy.html`.
 
 ## Settings
 
@@ -56,6 +66,7 @@ Edit `frescokart-landing.html`, run `python build_site.py`, and commit both file
 | `DATABASE_URL` | Postgres address. Vercel adds it when you connect the database. Locally use `FK_DATABASE_URL`. |
 | `FK_SECRET` | Secret behind the daily visitor code. If empty, one is made and kept in the database. |
 | `FK_LIMIT_ORDERS`, `FK_LIMIT_LEADS`, `FK_LIMIT_VOTES` | Requests allowed per visitor per hour. Defaults 8, 10 and 60. |
+| `FK_LIMIT_STATUS` | Order-status checks per visitor per hour, from the app. Default 300. |
 
 ## Before you run ads
 

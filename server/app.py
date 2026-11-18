@@ -89,14 +89,16 @@ USE_PG = bool(DATABASE_URL)
 LIMITS = {"/api/preorders": (int(os.environ.get("FK_LIMIT_ORDERS") or os.environ.get("FK_LIMIT_PREORDERS", "8")), 3600),
           "/api/leads": (int(os.environ.get("FK_LIMIT_LEADS", "10")), 3600),
           "/api/area-votes": (int(os.environ.get("FK_LIMIT_VOTES", "60")), 3600)}
+LIMIT_STATUS = int(os.environ.get("FK_LIMIT_STATUS", "300"))  # order-status checks per visitor per hour
 
 STATIC_TYPES = {
     ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8",
     ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8",
     ".txt": "text/plain; charset=utf-8", ".webp": "image/webp", ".png": "image/png",
     ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml",
-    ".ico": "image/x-icon", ".woff2": "font/woff2",
+    ".ico": "image/x-icon", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json",
 }
+NO_CACHE_TYPES = {".html", ".js", ".css", ".webmanifest"}  # the app's code must update as soon as it changes
 PAGE_CSP = ("default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             "font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self'; "
             "frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
@@ -337,6 +339,11 @@ def ip_hash(ip):
     return hmac.new(secret().encode(), (ip + day).encode(), hashlib.sha256).hexdigest()[:16]
 
 
+def order_token(oid):
+    """A key that only the customer who placed order `oid` gets back, so the app can follow that order's status."""
+    return hmac.new(secret().encode(), ("order:%d" % oid).encode(), hashlib.sha256).hexdigest()[:24]
+
+
 def clean_items(raw):
     if not isinstance(raw, list) or not 1 <= len(raw) <= 20:
         return None
@@ -423,7 +430,7 @@ def handle_preorder(d, ip, ua):
                         (phone, items_json, area,
                          (datetime.now(timezone.utc) - timedelta(minutes=3)).strftime("%Y-%m-%dT%H:%M:%SZ"))).fetchone()
         if dup:
-            return 200, {"ok": True, "id": dup["id"], "ref": "FK-%06d" % dup["id"], "duplicate": True}
+            return 200, {"ok": True, "id": dup["id"], "ref": "FK-%06d" % dup["id"], "token": order_token(dup["id"]), "duplicate": True}
         pid = c.insert_id(
             "INSERT INTO preorders(created_at,status,name,phone,area,address,notes,items_json,total,consent,campaign,utm_json,ip_hash,ua)"
             " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -432,7 +439,7 @@ def handle_preorder(d, ip, ua):
         c.commit()
     ref = "FK-%06d" % pid
     notify("New order %s: %s, %s, %s. Rs %s. %s" % (ref, clean(d.get("name"), 60) or "no name", phone, area, "%g" % total, items_text(items)))
-    return 200, {"ok": True, "id": pid, "ref": ref}
+    return 200, {"ok": True, "id": pid, "ref": ref, "token": order_token(pid)}
 
 
 def handle_lead(d, ip, ua):
@@ -705,6 +712,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.no_database(path)
             if path in HANDLERS:
                 return self.api_post(path) if method == "POST" else self.send_json(405, {"ok": False, "error": "method"})
+            if path == "/api/order":
+                return self.order_status() if method == "GET" else self.send_json(405, {"ok": False, "error": "method"})
             if path.startswith("/api/"):
                 return self.send_json(404, {"ok": False, "error": "not_found"})
             if path == "/admin" or path.startswith("/admin/"):
@@ -762,6 +771,25 @@ class Handler(BaseHTTPRequestHandler):
         code, payload = HANDLERS[path](data, ip, self.headers.get("User-Agent", ""))
         self.send_json(code, payload)
 
+    def order_status(self):
+        # The app asks this every half minute while an order is open: /api/order?id=12&t=<token from the order reply>.
+        q = parse_qs(urlparse(self.path).query)
+        try:
+            oid = int((q.get("id") or [""])[0])
+        except ValueError:
+            oid = 0
+        token = (q.get("t") or [""])[0]
+        if not 0 < oid < 2 ** 62 or not hmac.compare_digest(token.encode(), order_token(oid).encode()):
+            return self.send_json(404, {"ok": False, "error": "not_found"})
+        if not LIMITER.allow(("/api/order", self.ip()), LIMIT_STATUS, 3600):
+            return self.send_json(429, {"ok": False, "error": "rate"})
+        with closing(db()) as c:
+            r = c.execute("SELECT id, created_at, status FROM preorders WHERE id=?", (oid,)).fetchone()
+        if not r:
+            return self.send_json(404, {"ok": False, "error": "not_found"})
+        status = "cancelled" if r["status"] == "spam" else r["status"]
+        self.send_json(200, {"ok": True, "id": oid, "ref": "FK-%06d" % oid, "status": status, "created_at": r["created_at"]})
+
     def admin_ok(self):
         if not ADMIN_PW:  # never let an empty password in
             self.send_bytes(503, "text/plain; charset=utf-8", b"The admin page is closed until the FK_ADMIN_PASSWORD setting is added.")
@@ -816,11 +844,14 @@ class Handler(BaseHTTPRequestHandler):
             target = (WEB_DIR / rel).resolve()
         except (OSError, ValueError):
             return self.send_bytes(404, "text/plain; charset=utf-8", b"Not found", head)
+        inside = target == WEB_DIR or WEB_DIR in target.parents
+        if inside and target.is_dir() and not path.endswith("/"):  # /app becomes /app/, so the app's relative paths work
+            return self.send_bytes(301, "text/plain; charset=utf-8", b"Moved", head, extra={"Location": path + "/"})
         ext = target.suffix.lower()
-        if (target != WEB_DIR and WEB_DIR not in target.parents) or ext not in STATIC_TYPES or not target.is_file():
+        if not inside or ext not in STATIC_TYPES or not target.is_file():
             return self.send_bytes(404, "text/plain; charset=utf-8", b"Not found", head)
         self.send_bytes(200, STATIC_TYPES[ext], target.read_bytes(), head,
-                        cache="no-cache" if ext == ".html" else "public, max-age=86400",
+                        cache="no-cache" if ext in NO_CACHE_TYPES else "public, max-age=86400",
                         csp=PAGE_CSP if ext == ".html" else None)
 
 
