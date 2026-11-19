@@ -4,21 +4,73 @@
   "buildCommand": null,
   "outputDirectory": "web",
   "redirects": [
-    { "source": "/app", "destination": "/app/", "permanent": false }
+    {
+      "source": "/app",
+      "destination": "/app/",
+      "permanent": false
+    },
+    {
+      "source": "/market",
+      "destination": "/market/",
+      "permanent": false
+    },
+    {
+      "source": "/partner",
+      "destination": "/partner/",
+      "permanent": false
+    },
+    {
+      "source": "/rider",
+      "destination": "/rider/",
+      "permanent": false
+    }
   ],
   "rewrites": [
-    { "source": "/api/area-votes", "destination": "/api/area_votes" },
-    { "source": "/admin", "destination": "/api/admin" },
-    { "source": "/admin/export.csv", "destination": "/api/admin_export" },
-    { "source": "/admin/status", "destination": "/api/admin_status" }
+    {
+      "source": "/api/m/:route*",
+      "destination": "/api/market?route=:route*"
+    },
+    {
+      "source": "/admin/market",
+      "destination": "/api/admin_market"
+    },
+    {
+      "source": "/admin/market/api",
+      "destination": "/api/admin_market?route=api"
+    },
+    {
+      "source": "/api/area-votes",
+      "destination": "/api/area_votes"
+    },
+    {
+      "source": "/admin",
+      "destination": "/api/admin"
+    },
+    {
+      "source": "/admin/export.csv",
+      "destination": "/api/admin_export"
+    },
+    {
+      "source": "/admin/status",
+      "destination": "/api/admin_status"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "same-origin" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "same-origin"
+        }
       ]
     },
     {
@@ -46,12 +98,68 @@
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         },
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
       ]
     },
     {
       "source": "/img/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    },
+    {
+      "source": "/market/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/partner/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/rider/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/ui/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
     }
   ]
 }

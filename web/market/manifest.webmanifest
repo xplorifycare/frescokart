@@ -1,0 +1,29 @@
+{
+  "id": "/market/",
+  "name": "FrescoKart: shops near you",
+  "short_name": "FrescoKart",
+  "description": "Fresh fish, meat, vegetables and groceries from shops near you, in one delivery.",
+  "start_url": "/market/",
+  "scope": "/market/",
+  "display": "standalone",
+  "background_color": "#F3F5F4",
+  "theme_color": "#006B48",
+  "icons": [
+    {
+      "src": "/app/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/app/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/app/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -49,6 +49,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urlparse, urlsplit, urlunsplit
 
+try:  # imported as server.app (Vercel) or run as a script (python server/app.py)
+    from . import market
+except ImportError:
+    import market
+
 ROOT = Path(__file__).resolve().parent
 WEB_DIR = Path(os.environ.get("FK_WEB_DIR") or ROOT.parent / "web").resolve()
 DATA_DIR = Path(os.environ.get("FK_DATA_DIR") or ROOT / "data").resolve()
@@ -243,7 +248,8 @@ def init_db():
             c.execute("SELECT pg_advisory_xact_lock(727274)")  # two cold starts creating the tables at once would collide
             c.execute("CREATE SCHEMA IF NOT EXISTS " + PG_SCHEMA)
             c.execute(SCHEMA_PG)
-            for table in ("preorders", "leads", "area_votes", "kv", "rate_hits"):
+            c.execute(market.SCHEMA_PG)
+            for table in ("preorders", "leads", "area_votes", "kv", "rate_hits") + market.TABLES:
                 # Row security with no policies: the data-API roles of a shared database see nothing here.
                 # The role the server connects with owns the tables, so it is not affected.
                 c.execute("ALTER TABLE %s ENABLE ROW LEVEL SECURITY" % table)
@@ -253,6 +259,7 @@ def init_db():
         with closing(Conn()) as c:
             c.execute("PRAGMA journal_mode=WAL")
             c.raw.executescript(SCHEMA_SQLITE)
+            c.raw.executescript(market.SCHEMA_SQLITE)
             c.commit()
     _SCHEMA_READY = True
 
@@ -714,8 +721,12 @@ class Handler(BaseHTTPRequestHandler):
                 return self.api_post(path) if method == "POST" else self.send_json(405, {"ok": False, "error": "method"})
             if path == "/api/order":
                 return self.order_status() if method == "GET" else self.send_json(405, {"ok": False, "error": "method"})
+            if path == "/api/market" or path.startswith("/api/m/"):
+                return market.handle(self, CORE, method, self.sub_route("/api/m/"))
             if path.startswith("/api/"):
                 return self.send_json(404, {"ok": False, "error": "not_found"})
+            if path == "/admin/market" or path.startswith("/admin/market/"):
+                return self.admin_market(method, self.sub_route("/admin/market/"))
             if path == "/admin" or path.startswith("/admin/"):
                 return self.admin(method, path)
             if method in ("GET", "HEAD"):
@@ -727,6 +738,28 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json(500, {"ok": False, "error": "server"})
             except Exception:
                 pass
+
+    def sub_route(self, prefix):
+        # Locally the path says it (/api/m/shop/orders). On Vercel a rewrite sends it to one function with ?route=shop/orders.
+        url = urlparse(self.path)
+        r = (parse_qs(url.query).get("route") or [""])[0]
+        if not r and url.path.startswith(prefix):
+            r = url.path[len(prefix):]
+        return r.strip("/")
+
+    def admin_market(self, method, sub):
+        if not self.admin_ok():
+            return
+        if sub == "" and method in ("GET", "HEAD"):
+            return self.send_bytes(200, "text/html; charset=utf-8", market.render_admin(CORE).encode("utf-8"), method == "HEAD", csp=ADMIN_CSP)
+        if sub == "api" and method == "POST":
+            if self.headers.get("X-FK-Admin") != "1":
+                return self.send_json(400, {"ok": False, "error": "request"})
+            data, err = self.read_json()
+            if err or not isinstance(data, dict):
+                return self.send_json(400, {"ok": False, "error": "bad_request"})
+            return self.send_json(*market.admin_api(CORE, data))
+        self.send_json(404, {"ok": False, "error": "not_found"})
 
     def health(self):
         # The page calls this to decide between "save on the server" and "open WhatsApp". Adding ?deep=1 also tests the database.
@@ -853,6 +886,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_bytes(200, STATIC_TYPES[ext], target.read_bytes(), head,
                         cache="no-cache" if ext in NO_CACHE_TYPES else "public, max-age=86400",
                         csp=PAGE_CSP if ext == ".html" else None)
+
+
+CORE = sys.modules[__name__]  # handed to market.py, so it uses this module's settings whether run as a script or imported
 
 
 def main():

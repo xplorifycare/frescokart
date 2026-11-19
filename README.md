@@ -14,6 +14,7 @@ Visitors pick a kit, build a basket and place an order, delivered in about 45 mi
 | `build_site.py` | Turns `frescokart-landing.html` into `web/index.html`. |
 | `server/app.py` | The server: orders, sign-ups, area votes, admin page and CSV downloads. SQLite when you run it yourself, Postgres on Vercel. |
 | `api/` | The Vercel functions. Each file is a few lines that point Vercel at `server/app.py`. |
+| `server/market.py`, `web/market/`, `web/partner/`, `web/rider/`, `web/ui/` | The shops marketplace pilot: the customer, shop and rider apps and their server code. See below. |
 | `vercel.json`, `requirements.txt`, `.python-version` | Vercel settings. |
 
 ## Run it on your computer
@@ -53,6 +54,23 @@ The app lives at `/app/` on the same address as the site (for example `https://y
 - **Install.** On Android, Chrome offers "Install app" (also in the app's Account tab). On iPhone, Safari's Share menu has "Add to Home Screen".
 - **Saved on the phone.** The basket, the customer's details and their order list stay in that phone's browser. There is no login yet.
 
+## Shops marketplace pilot
+
+A second ordering system, separate from the kit orders above: customers order fresh food from shops near them, a shop packs and weighs it, and one rider collects from every shop and delivers. Its tables all start with `m_`, so the kit orders are untouched.
+
+| Address | Who uses it |
+| --- | --- |
+| `/market/` | Customers. Shops, search, one basket from several shops, checkout with pay-on-delivery (cash or UPI to the rider), live order with a delivery code. |
+| `/partner/` | Shop owners. Log in with the shop's mobile number and PIN. New orders ring and fill the screen; the shop picks a ready time, packs and weighs, and hands over to the rider who shows the pickup PIN. Daily prices and stock, and today's sales. |
+| `/rider/` | Riders. Log in with mobile and PIN, go online, accept an order, pick up from each shop, collect the money and finish with the customer's 4-digit code. |
+| `/admin/market` | You, with the admin password. Add shops (with starter items) and riders, give PINs, follow every order, set or change the rider, cancel. Also adds and removes demo shops for testing. |
+
+How an order moves: placed, then each shop accepts (or turns it down; the rest of the order carries on), packs and marks it ready, a rider claims it and picks up from every shop, and it is delivered when the rider enters the customer's code. Customers pay for what each shop actually packed, so a lighter fish costs less. Everything is rounded to whole rupees.
+
+To try it, open `/admin/market`, press **Add demo shops and rider** (PIN 1234, mobiles 90000 00001 to 90000 00004 for shops and 90000 00009 for the rider), place an order at `/market/`, then use `/partner/` and `/rider/`. Remove the demo data before real customers arrive.
+
+Limits of this pilot: no online payment yet, no maps or distance (riders get map links), riders take one order at a time, orders are checked every 8 seconds rather than pushed, and the shop's ring only plays while the app is open on screen. The fees and pay are examples; set the real ones with the settings below.
+
 ## Change the page
 
 Edit `frescokart-landing.html`, run `python build_site.py`, and commit the changed files. The business WhatsApp number is the `WA` value near the top of the page script, and it is also written in `web/privacy.html`.
@@ -67,6 +85,11 @@ Edit `frescokart-landing.html`, run `python build_site.py`, and commit the chang
 | `FK_SECRET` | Secret behind the daily visitor code. If empty, one is made and kept in the database. |
 | `FK_LIMIT_ORDERS`, `FK_LIMIT_LEADS`, `FK_LIMIT_VOTES` | Requests allowed per visitor per hour. Defaults 8, 10 and 60. |
 | `FK_LIMIT_STATUS` | Order-status checks per visitor per hour, from the app. Default 300. |
+| `FK_M_AREAS` | Pilot delivery areas, separated by commas. Default `Edappally,Palarivattom,Kaloor`. |
+| `FK_M_DELIVERY_FEE`, `FK_M_EXTRA_SHOP_FEE`, `FK_M_FREE_OVER` | Delivery fee for one shop, extra for each more shop, and the basket value that makes delivery free. Defaults 30, 10 and 1599 (examples). |
+| `FK_M_SHOP_FEE_PCT` | FrescoKart's share of a new shop's sales. Default 10 (example; each shop can have its own on the admin page). |
+| `FK_M_RIDER_TRIP`, `FK_M_RIDER_EXTRA` | Rider pay per trip and per extra pickup. Defaults 40 and 10 (examples). |
+| `FK_M_LIMIT_ORDERS`, `FK_M_LIMIT_STATUS` | Marketplace orders and live-order checks per visitor per hour. Defaults 12 and 900. |
 
 ## Before you run ads
 

@@ -1,0 +1,30 @@
+{
+  "id": "/partner/",
+  "name": "FrescoKart Partner",
+  "short_name": "FK Partner",
+  "description": "Take orders, pack and set prices for your shop on FrescoKart.",
+  "start_url": "/partner/",
+  "scope": "/partner/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B3D2C",
+  "theme_color": "#0B3D2C",
+  "icons": [
+    {
+      "src": "/partner/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/partner/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/partner/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
