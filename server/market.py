@@ -756,6 +756,10 @@ def handle(h, core, method, route):
 
 # ---------------------------------------------------------------- admin
 
+PHONE_HELP = "Check the mobile number: 10 digits, starting with 6, 7, 8 or 9 (a +91 in front is fine)."
+PIN_HELP = "The PIN must be 4 to 6 digits, numbers only."
+
+
 def admin_api(core, d):
     action = d.get("action")
     now = core.now_iso()
@@ -763,8 +767,16 @@ def admin_api(core, d):
         if action == "add_shop":
             name, kind, area = core.clean(d.get("name"), 80), d.get("kind"), core.clean(d.get("area"), 40)
             phone, pin = core.norm_phone(d.get("phone")), d.get("pin")
-            if not name or kind not in KINDS or area not in AREAS or not phone or not valid_pin(pin):
-                return bad("shop", "Give the shop a name, a kind, a pilot area, a mobile number and a 4 to 6 digit PIN.")
+            if not name:
+                return bad("name", "Give the shop a name.")
+            if kind not in KINDS:
+                return bad("kind", "Choose what the shop sells.")
+            if area not in AREAS:
+                return bad("area", "Choose one of the pilot areas: %s." % ", ".join(AREAS))
+            if not phone:
+                return bad("phone", PHONE_HELP)
+            if not valid_pin(pin):
+                return bad("pin", PIN_HELP)
             if c.execute("SELECT id FROM m_shops WHERE phone=?", (phone,)).fetchone():
                 return bad("phone", "Another shop already uses that number.")
             try:
@@ -780,15 +792,19 @@ def admin_api(core, d):
                 add_items(c, core, sid, kind)
         elif action == "add_rider":
             name, phone, pin = core.clean(d.get("name"), 60), core.norm_phone(d.get("phone")), d.get("pin")
-            if not name or not phone or not valid_pin(pin):
-                return bad("rider", "Give the rider a name, a mobile number and a 4 to 6 digit PIN.")
+            if not name:
+                return bad("name", "Give the rider a name.")
+            if not phone:
+                return bad("phone", PHONE_HELP)
+            if not valid_pin(pin):
+                return bad("pin", PIN_HELP)
             if c.execute("SELECT id FROM m_riders WHERE phone=?", (phone,)).fetchone():
                 return bad("phone", "Another rider already uses that number.")
             c.insert_id("INSERT INTO m_riders(created_at,name,phone,pin_hash,online,active,demo) VALUES(?,?,?,?,?,?,?)",
                         (now, name, phone, pin_hash(pin), 0, 1, 0))
         elif action in ("shop_pin", "rider_pin"):
             if not valid_pin(d.get("pin")) or type(d.get("id")) is not int:
-                return bad("pin", "A PIN is 4 to 6 digits.")
+                return bad("pin", PIN_HELP)
             c.execute("UPDATE %s SET pin_hash=? WHERE id=?" % ("m_shops" if action == "shop_pin" else "m_riders"), (pin_hash(d["pin"]), d["id"]))
         elif action in ("shop_active", "rider_active"):
             if type(d.get("id")) is not int:
