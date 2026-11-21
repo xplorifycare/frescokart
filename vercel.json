@@ -4,10 +4,15 @@
   "buildCommand": null,
   "outputDirectory": "web",
   "redirects": [
-    { "source": "/app", "destination": "/app/", "permanent": false }
+    { "source": "/app", "destination": "/app/", "permanent": false },
+    { "source": "/join", "destination": "/join/", "permanent": false }
   ],
   "rewrites": [
     { "source": "/api/area-votes", "destination": "/api/area_votes" },
+    { "source": "/api/d/:route*", "destination": "/api/demand?route=:route*" },
+    { "source": "/join/:slug([a-z0-9-]+)", "destination": "/join/index.html" },
+    { "source": "/admin/leads", "destination": "/api/admin_leads" },
+    { "source": "/admin/leads/:route*", "destination": "/api/admin_leads?route=:route*" },
     { "source": "/admin", "destination": "/api/admin" },
     { "source": "/admin/export.csv", "destination": "/api/admin_export" },
     { "source": "/admin/status", "destination": "/api/admin_status" }
@@ -52,6 +57,17 @@
     {
       "source": "/img/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+    },
+    {
+      "source": "/join/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        },
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
     }
-  ]
+  ],
+  "crons": [{ "path": "/api/d/cron/daily", "schedule": "30 15 * * *" }]
 }

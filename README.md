@@ -9,10 +9,12 @@ Visitors pick a kit, build a basket and place an order, delivered in about 45 mi
 | Path | What it is |
 | --- | --- |
 | `web/` | The site visitors see: `index.html` (generated), `privacy.html` and `img/`. |
+| `web/join/` | The waiting list at `/join/` for the pre-launch demand test: customers, shop owners and riders sign up by area. |
 | `web/app/` | The customer app at `/app/`: browse, basket, checkout, live order status, cook-along mode. Installable on a phone from the browser. `menu.js` is generated. |
 | `frescokart-landing.html` | The source of the home page. Edit this one. |
 | `build_site.py` | Turns `frescokart-landing.html` into `web/index.html`. |
 | `server/app.py` | The server: orders, sign-ups, area votes, admin page and CSV downloads. SQLite when you run it yourself, Postgres on Vercel. |
+| `server/demand.py`, `server/demand_admin.py` | The waiting list behind `/join/` and its live dashboard at `/admin/leads`. |
 | `api/` | The Vercel functions. Each file is a few lines that point Vercel at `server/app.py`. |
 | `vercel.json`, `requirements.txt`, `.python-version` | Vercel settings. |
 
@@ -53,6 +55,27 @@ The app lives at `/app/` on the same address as the site (for example `https://y
 - **Install.** On Android, Chrome offers "Install app" (also in the app's Account tab). On iPhone, Safari's Share menu has "Add to Home Screen".
 - **Saved on the phone.** The basket, the customer's details and their order list stay in that phone's browser. There is no login yet.
 
+## The waiting list (demand test)
+
+`/join/` collects interest before launch from all of Kerala, in English and Malayalam. A visitor picks who they are (customer, shop owner, rider), types their PIN code (or picks district, then place) and leaves a WhatsApp number. That is all that is required. Places that share a PIN code count together as one area. Visitors then see their place in that area and the area's rank in Kerala, get a personal share link, a button for the area's WhatsApp group, and a few optional questions: what they buy, **which nearby shops they buy from**, their flat or street, and whether they would order in the first week.
+
+`/admin/leads` (same password as `/admin`) refreshes by itself every 20 seconds and shows:
+
+- sign-ups today and in total, the top PIN areas against their targets, every district, and whether an area is ready (homes, shops and riders all reached)
+- which poster, place or ad brought people (visits, sign-ups, conversion)
+- the shops customers asked for, ranked, and whether that shop has signed up yet. Walk in with "27 of your customers asked for you".
+- the people who brought the most neighbours, and the areas people typed in themselves
+- everyone, with a one-tap WhatsApp welcome message in their language, a status (new, welcomed, in group, pre-booked…), a note and delete
+- tools: tracked links with QR codes, add someone by hand, import a Meta lead-form CSV, edit areas, targets and WhatsApp group links, and Telegram alerts
+
+**Town links and tracked links.** `/join/thrissur` opens the page with a district picked, `/join/kakkanad` or `/join/682030` with a PIN area picked. The link tool on `/admin/leads` builds these with a source name for each poster, place and ad, for example `/join/kakkanad?src=poster-kakkanad-infopark&lang=ml`. Add `&role=shop` or `&role=rider` for shop and rider posters. On day 10, use the **Week-1 ask** button next to each customer on `/admin/leads`: it opens WhatsApp with a personal link that takes them straight to "Would you order in our first week?" on their own page. For a broadcast, ask them to reply YES and set their status to "Pre-booked" yourself.
+
+**Phone alerts (Telegram).** Create a bot with @BotFather, add its token as `FK_TG_TOKEN` in Vercel and redeploy, press Start in the bot, then press "Find my chat" on `/admin/leads`. Every sign-up then reaches your phone, and Vercel Cron sends a summary each evening around 9 PM IST (`crons` in `vercel.json`). Set `CRON_SECRET` in Vercel so nobody else can trigger it.
+
+**Share preview.** WhatsApp shows `web/join/og.png` when someone shares the link.
+
+**Kerala places.** `web/join/data/places.json` and `server/kerala_places.py` come from the Department of Posts PIN directory on data.gov.in (5,057 post offices, 1,427 PIN areas). Run `python build_places.py` to refresh them; it takes 15 minutes or more because the site only gives 10 rows per request. Place names use postal spellings (Edapally, Calicut); the page's search ignores doubled letters, so "edappally" still finds Edapally.
+
 ## Change the page
 
 Edit `frescokart-landing.html`, run `python build_site.py`, and commit the changed files. The business WhatsApp number is the `WA` value near the top of the page script, and it is also written in `web/privacy.html`.
@@ -67,6 +90,10 @@ Edit `frescokart-landing.html`, run `python build_site.py`, and commit the chang
 | `FK_SECRET` | Secret behind the daily visitor code. If empty, one is made and kept in the database. |
 | `FK_LIMIT_ORDERS`, `FK_LIMIT_LEADS`, `FK_LIMIT_VOTES` | Requests allowed per visitor per hour. Defaults 8, 10 and 60. |
 | `FK_LIMIT_STATUS` | Order-status checks per visitor per hour, from the app. Default 300. |
+| `FK_TG_TOKEN` | Telegram bot token for sign-up alerts and the evening summary. |
+| `FK_TG_CHAT` | Optional. The chat that gets the alerts; the admin page can find it for you instead. |
+| `CRON_SECRET` | Optional. Vercel sends it with the daily summary call, so nobody else can trigger it. |
+| `FK_D_LIMIT_JOIN` | Waiting-list sign-ups allowed per visitor per hour. Default 12. |
 
 ## Before you run ads
 

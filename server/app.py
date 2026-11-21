@@ -23,6 +23,7 @@ Settings (environment variables, all optional when running locally):
   FK_TRUST_PROXY=1    read the visitor's IP from X-Forwarded-For (set this behind a reverse proxy; always on for Vercel)
   FK_CORS_ORIGIN      let one other site call the API, for example https://www.example.com
   FK_NOTIFY_WEBHOOK   a URL that receives {"text": "..."} for every new order or sign-up
+  The /join waiting list has its own settings (Telegram alerts): see server/demand.py.
 """
 import argparse
 import base64
@@ -48,6 +49,11 @@ from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urlparse, urlsplit, urlunsplit
+
+try:  # imported as server.app (Vercel) or run as a script (python server/app.py)
+    from . import demand
+except ImportError:
+    import demand
 
 ROOT = Path(__file__).resolve().parent
 WEB_DIR = Path(os.environ.get("FK_WEB_DIR") or ROOT.parent / "web").resolve()
@@ -243,7 +249,8 @@ def init_db():
             c.execute("SELECT pg_advisory_xact_lock(727274)")  # two cold starts creating the tables at once would collide
             c.execute("CREATE SCHEMA IF NOT EXISTS " + PG_SCHEMA)
             c.execute(SCHEMA_PG)
-            for table in ("preorders", "leads", "area_votes", "kv", "rate_hits"):
+            c.execute(demand.SCHEMA_PG)
+            for table in ("preorders", "leads", "area_votes", "kv", "rate_hits") + demand.TABLES:
                 # Row security with no policies: the data-API roles of a shared database see nothing here.
                 # The role the server connects with owns the tables, so it is not affected.
                 c.execute("ALTER TABLE %s ENABLE ROW LEVEL SECURITY" % table)
@@ -253,6 +260,7 @@ def init_db():
         with closing(Conn()) as c:
             c.execute("PRAGMA journal_mode=WAL")
             c.raw.executescript(SCHEMA_SQLITE)
+            c.raw.executescript(demand.SCHEMA_SQLITE)
             c.commit()
     _SCHEMA_READY = True
 
@@ -714,10 +722,16 @@ class Handler(BaseHTTPRequestHandler):
                 return self.api_post(path) if method == "POST" else self.send_json(405, {"ok": False, "error": "method"})
             if path == "/api/order":
                 return self.order_status() if method == "GET" else self.send_json(405, {"ok": False, "error": "method"})
+            if path == "/api/demand" or path.startswith("/api/d/"):
+                return demand.handle(self, CORE, method, self.sub_route("/api/d/"))
             if path.startswith("/api/"):
                 return self.send_json(404, {"ok": False, "error": "not_found"})
+            if path == "/admin/leads" or path.startswith("/admin/leads/"):
+                return demand.admin(self, CORE, method, self.sub_route("/admin/leads/")) if self.admin_ok() else None
             if path == "/admin" or path.startswith("/admin/"):
                 return self.admin(method, path)
+            if method in ("GET", "HEAD") and re.fullmatch(r"/join/[a-z0-9-]{2,80}", path):
+                return self.static("/join/", method == "HEAD")  # town links like /join/thrissur all open the one join page
             if method in ("GET", "HEAD"):
                 return self.static(path, method == "HEAD")
             self.send_json(405, {"ok": False, "error": "method"})
@@ -727,6 +741,14 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json(500, {"ok": False, "error": "server"})
             except Exception:
                 pass
+
+    def sub_route(self, prefix):
+        # Locally the path says it (/api/d/board). On Vercel a rewrite sends it to one function with ?route=board.
+        url = urlparse(self.path)
+        r = (parse_qs(url.query).get("route") or [""])[0]
+        if not r and url.path.startswith(prefix):
+            r = url.path[len(prefix):]
+        return r.strip("/")
 
     def health(self):
         # The page calls this to decide between "save on the server" and "open WhatsApp". Adding ?deep=1 also tests the database.
@@ -853,6 +875,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_bytes(200, STATIC_TYPES[ext], target.read_bytes(), head,
                         cache="no-cache" if ext in NO_CACHE_TYPES else "public, max-age=86400",
                         csp=PAGE_CSP if ext == ".html" else None)
+
+
+CORE = sys.modules[__name__]  # handed to demand.py, so it uses this module's settings whether run as a script or imported
 
 
 def main():
