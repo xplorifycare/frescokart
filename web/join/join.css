@@ -27,8 +27,7 @@ a{color:var(--green)}
 .lang button{border:0;background:none;color:#fff;font-weight:700;font-size:13px;padding:7px 12px;border-radius:999px;min-height:34px}
 .lang button[lang=ml]{font-family:var(--ml)}
 .lang button[aria-pressed=true]{background:#fff;color:var(--green)}
-.hero{background:var(--green);color:#fff;padding:18px 16px 76px;border-radius:0 0 28px 28px}
-.hero>*{max-width:520px;margin-left:auto;margin-right:auto}
+.hero{background:var(--green);color:#fff;padding:18px max(16px,calc((100% - 520px) / 2)) 76px;border-radius:0 0 28px 28px}
 .pill{display:flex;align-items:center;gap:8px;width:max-content;max-width:100%;margin-top:0;margin-bottom:14px;padding:6px 12px 6px 10px;
   border-radius:999px;background:rgba(0,0,0,.18);font-size:13px;font-weight:700}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(168,230,61,.7);animation:ping 2s infinite}
@@ -44,7 +43,7 @@ body.is-ml h1{font:800 27px/1.32 var(--ml);letter-spacing:0}
 @media (prefers-reduced-motion:reduce){.track,.dot{animation:none}}
 
 /* content column */
-.wrap{max-width:520px;margin:-56px auto 0;padding:0 16px 24px;position:relative}
+.wrap{max-width:552px;margin:-56px auto 0;padding:0 16px 24px;position:relative}  /* 520px column + gutters, same as the hero */
 .card{background:#fff;border-radius:20px;padding:20px 16px;box-shadow:0 1px 2px rgba(14,31,23,.06),0 12px 32px rgba(14,31,23,.08);margin-bottom:16px}
 .step{border:0;margin:0 0 22px;padding:0;min-width:0}
 legend{display:flex;align-items:center;gap:10px;font:800 18px/1.25 var(--display);letter-spacing:-.02em;margin-bottom:10px;padding:0}
@@ -137,6 +136,8 @@ body.is-ml #more h3,body.is-ml .how h3{font:800 19px/1.4 var(--ml);letter-spacin
 .bar i{display:block;height:100%;width:0;border-radius:99px;background:var(--green);transition:width .6s ease}
 .meter .cnt{font-size:12px;color:var(--muted)}
 .pinfield{font:600 20px/1 var(--mono)!important;letter-spacing:.12em;margin-bottom:10px}
+.pinfield::placeholder{font:500 15px/1 var(--body);letter-spacing:0;color:#7A867F}
+body.is-ml .pinfield::placeholder{font-family:var(--ml)}
 #pinBox{margin:2px 0 8px}
 #pinBox .hint{margin:0 0 8px;color:var(--ink2);font-weight:600}
 #pinBox .hint.bad{color:var(--err)}

@@ -31,7 +31,7 @@
       e_consent: "Tick the box so we can message you.", e_net: "Couldn't reach us. Check your internet and try again.",
       e_rate: "Too many tries. Please wait a while and try again.", e_save: "Couldn't save. Try again.",
       already_t: "This number is already on the list 👍",
-      already_s: "We'll keep you posted on WhatsApp. Tell your neighbours about FrescoKart too.",
+      already_s: "It joined before, maybe from another phone or browser, and it's still counted. We'll keep you posted on WhatsApp. Tell your neighbours too!",
       d_cust: "You're #{n} in {area}", d_cust_sub: "{count} homes in {area} have joined so far.", d_cust_sub1: "You're the first home in {area}!",
       d_rank: "{area} is #{rank} in Kerala right now.",
       d_other: "Thanks! We'll tell you when we reach {area}.", d_other_cnt: "{count} people from {area} have joined.", d_other_cnt1: "You're the first from {area}.",
@@ -102,7 +102,7 @@
       e_consent: "മെസേജ് അയക്കാൻ ബോക്സിൽ ടിക്ക് ചെയ്യൂ.", e_net: "കണക്ഷൻ കിട്ടിയില്ല. ഇന്റർനെറ്റ് നോക്കി വീണ്ടും ശ്രമിക്കൂ.",
       e_rate: "ഒരുപാട് ശ്രമങ്ങൾ. കുറച്ച് കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കൂ.", e_save: "സേവ് ചെയ്യാനായില്ല. വീണ്ടും ശ്രമിക്കൂ.",
       already_t: "ഈ നമ്പർ ഇതിനകം ലിസ്റ്റിലുണ്ട് 👍",
-      already_s: "വിവരങ്ങൾ വാട്സ്ആപ്പിൽ അറിയിക്കാം. അയൽക്കാർക്കും FrescoKart പരിചയപ്പെടുത്തൂ.",
+      already_s: "ഈ നമ്പർ മുൻപേ ചേർന്നതാണ്, ഒരുപക്ഷേ മറ്റൊരു ഫോണിൽ നിന്ന്. അത് എണ്ണത്തിലുണ്ട്. വിവരങ്ങൾ വാട്സ്ആപ്പിൽ അറിയിക്കാം. അയൽക്കാർക്കും പറയൂ!",
       d_cust: "{area} ലിസ്റ്റിൽ നിങ്ങളുടെ നമ്പർ #{n}", d_cust_sub: "{area} ലിസ്റ്റിൽ ഇതുവരെ {count} വീടുകൾ.", d_cust_sub1: "{area} ലിസ്റ്റിൽ ആദ്യത്തെ വീട് നിങ്ങളുടേതാണ്!",
       d_rank: "കേരളത്തിൽ ഇപ്പോൾ {area} #{rank} സ്ഥാനത്ത്.",
       d_other: "നന്ദി! {area} ഏരിയയിൽ എത്തുമ്പോൾ ഞങ്ങൾ അറിയിക്കാം.", d_other_cnt: "{area} ഏരിയയിൽ നിന്ന് {count} പേർ ചേർന്നു.", d_other_cnt1: "{area} ഏരിയയിൽ നിന്ന് ആദ്യം ചേർന്നത് നിങ്ങളാണ്.",
@@ -422,7 +422,7 @@
         showDone(); renderMore(); loadBoard();
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else if (j.ok && j.already) {
-        state.lead = { already: true, role: state.role };
+        state.lead = { already: true, role: state.role, pin: state.loc.pin, zone_name: state.loc.pin ? zoneName(state.loc.pin) : state.loc.place };
         showDone();
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else if (j.error === "rate") showErr("e_form", "e_rate");
