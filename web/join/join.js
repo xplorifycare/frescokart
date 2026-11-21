@@ -71,10 +71,12 @@
       save: "Save answers", saved: "Thank you! We'll keep you posted.",
       again: "Sign up another number",
       race_t: "Which place gets FrescoKart first?", race_s: "Top places in Kerala right now",
-      race_empty: "Nobody on the board yet. Put your place there first!", all_d: "All districts",
-      how_t: "How it works", how1: "Join the list for your place.",
-      how2: "Share your link with neighbours. Your place moves up.",
-      how3: "When a place reaches its goal, we start there and tell you first on WhatsApp.",
+      race_empty: "No place on the board yet. Yours could be the first.", all_d: "All districts",
+      how_t: "How it works", how1: "Join the list for your place.", how1s: "Takes 20 seconds on your phone.",
+      how2: "Tell us the shops you trust.", how2s: "We bring your fish stall, butcher and vegetable shop on.",
+      how3: "Your place reaches its goal, we start.", how3s: "You hear first on WhatsApp. Fresh to your door.",
+      board_tag: "KERALA'S FAVOURITES", form_t: "Join the list", form_q: "20 SECONDS",
+      trust1: "No app", trust2: "No OTP", trust3: "Stop anytime", made: "Made in Kerala",
       f_wa: "WhatsApp us", f_privacy: "Privacy"
     },
     ml: {
@@ -142,15 +144,18 @@
       save: "സേവ് ചെയ്യൂ", saved: "നന്ദി! വിവരങ്ങൾ ഞങ്ങൾ അറിയിക്കാം.",
       again: "മറ്റൊരു നമ്പർ ചേർക്കൂ",
       race_t: "FrescoKart ആദ്യം എവിടെ?", race_s: "ഇപ്പോൾ കേരളത്തിൽ മുന്നിലുള്ള സ്ഥലങ്ങൾ",
-      race_empty: "ബോർഡിൽ ഇതുവരെ ആരുമില്ല. നിങ്ങളുടെ സ്ഥലം ആദ്യം എത്തിക്കൂ!", all_d: "എല്ലാ ജില്ലകളും",
-      how_t: "എങ്ങനെ?", how1: "നിങ്ങളുടെ സ്ഥലത്തിന്റെ ലിസ്റ്റിൽ ചേരൂ.",
-      how2: "ലിങ്ക് അയൽക്കാർക്ക് അയക്കൂ. നിങ്ങളുടെ സ്ഥലം മുന്നിലെത്തും.",
-      how3: "ലക്ഷ്യം എത്തുന്ന സ്ഥലത്ത് ഞങ്ങൾ തുടങ്ങും, ആദ്യം നിങ്ങളെ വാട്സ്ആപ്പിൽ അറിയിക്കും.",
+      race_empty: "ബോർഡിൽ ഇതുവരെ ഒരു സ്ഥലവുമില്ല. ആദ്യം നിങ്ങളുടേതാകട്ടെ.", all_d: "എല്ലാ ജില്ലകളും",
+      how_t: "എങ്ങനെ?", how1: "നിങ്ങളുടെ സ്ഥലത്തിന്റെ ലിസ്റ്റിൽ ചേരൂ.", how1s: "ഫോണിൽ 20 സെക്കൻഡ് മതി.",
+      how2: "നിങ്ങൾക്ക് വിശ്വാസമുള്ള കടകൾ പറയൂ.", how2s: "നിങ്ങളുടെ മീൻകട, ഇറച്ചിക്കട, പച്ചക്കറിക്കട — അവരെ ഞങ്ങൾ കൊണ്ടുവരാം.",
+      how3: "ലക്ഷ്യം എത്തിയാൽ ഞങ്ങൾ തുടങ്ങും.", how3s: "ആദ്യം വാട്സ്ആപ്പിൽ അറിയിക്കും. ഫ്രഷ് ആയി വീട്ടുപടിക്കൽ.",
+      board_tag: "കേരളത്തിന്റെ ഇഷ്ടങ്ങൾ", form_t: "ലിസ്റ്റിൽ ചേരൂ", form_q: "20 സെക്കൻഡ്",
+      trust1: "ആപ്പ് വേണ്ട", trust2: "OTP വേണ്ട", trust3: "എപ്പോഴും നിർത്താം", made: "കേരളത്തിൽ നിർമ്മിച്ചത്",
       f_wa: "വാട്സ്ആപ്പ്", f_privacy: "സ്വകാര്യത"
     }
   };
 
   var ROLES = ["customer", "shop", "rider"];
+  var HERO = { customer: ["/img/stage-door.webp", "50% 40%"], shop: ["/img/weighing.webp", "50% 30%"], rider: ["/img/rider.webp", "55% 30%"] };
   var $ = function (id) { return document.getElementById(id); };
   var qsa = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
   var qs = new URLSearchParams(location.search);
@@ -239,6 +244,9 @@
     qsa("[data-t]").forEach(function (el) { el.textContent = t(el.dataset.t); });
     qsa("[data-ph]").forEach(function (el) { el.placeholder = t(el.dataset.ph); });
     $("h1").textContent = t("h1_" + state.role);
+    var hero = HERO[state.role], img = $("heroImg");
+    if (img.getAttribute("src") !== hero[0]) { img.setAttribute("src", hero[0]); }
+    img.style.objectPosition = hero[1];
     $("lede").textContent = t("lede_" + state.role);
     $("pill").textContent = state.pillName ? t("coming_to", { name: state.pillName }) : t("coming_kerala");
     $("submit").textContent = state.sending ? t("sending") : t("cta_" + state.role);
@@ -363,17 +371,18 @@
     var b = state.board, list = $("raceList");
     if (!b) return;
     var top = b.zones.filter(function (z) { return z[3] > 0; }).slice(0, 10);  // the race is about homes
-    list.innerHTML = top.length ? top.map(function (z, i) {
+    list.hidden = !top.length; $("raceEmpty").hidden = !!top.length;
+    list.innerHTML = top.map(function (z, i) {
       var target = (b.targets && b.targets[z[0]]) || b.default_target, pct = Math.min(100, Math.round(z[3] / target * 100));
-      return '<li' + (state.loc && state.loc.pin === z[0] ? ' class="me"' : "") + '><span class="rk">' + (i + 1) + '</span><span class="nm"><b>' + esc(z[1]) + "</b><small>" +
-        esc(dName(z[2]) || z[2]) + " · " + z[0] + '</small></span><span class="meter"><span class="bar"><i style="width:' + pct + '%"></i></span><span class="cnt mono">' +
-        z[3] + " / " + target + "</span></span></li>";
-    }).join("") : '<li class="empty-race">' + esc(t("race_empty")) + "</li>";
+      return '<li' + (state.loc && state.loc.pin === z[0] ? ' class="me"' : "") + '><span class="rk">' + (i + 1) + '</span><span class="nm">' + esc(z[1]) +
+        " <small>" + esc(dName(z[2]) || z[2]) + " · " + z[0] + '</small></span><span class="ct">' + z[3] + " / " + target +
+        '</span><span class="bar"><i style="width:' + pct + '%"></i></span></li>';
+    }).join("");
     if (!IDX) return;
     var rows = IDX.districts.map(function (d) { return { d: d, n: (b.districts[d.id] || [0])[0] }; }).sort(function (a, c) { return c.n - a.n; });
     var max = Math.max(1, rows[0] ? rows[0].n : 1);
     $("distList").innerHTML = rows.map(function (r) {
-      return '<div class="distrow"><span>' + esc(state.lang === "ml" ? r.d.ml : r.d.name) + '</span><span class="bar"><i style="width:' + Math.round(r.n / max * 100) + '%"></i></span><span class="n">' + r.n + "</span></div>";
+      return '<div class="distrow"><span>' + esc(state.lang === "ml" ? r.d.ml : r.d.name) + '</span><span class="bar"><i style="width:' + Math.round(r.n / max * 100) + '%"></i></span><span class="dn">' + r.n + "</span></div>";
     }).join("");
   }
 
